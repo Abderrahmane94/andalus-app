@@ -2,24 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function UserView()
     {
-        $data['allData'] = User::all();
-//        $data['allData'] = User::where('name', 'Admin')->get();
-        return view('doreViews.admin.user.list_user', $data);
-
+        $data['allData'] = $this->userService->getAllUser();
+        return view('backend.user.list_user', $data);
     }
 
 
     public function UserAdd()
     {
-        return view('doreViews.admin.user.add_user');
+        return view('backend.user.add_user');
     }
 
 
@@ -31,12 +36,8 @@ class UserController extends Controller
             'name' => 'required',
         ]);
 
-        $data = new User();
 
-        $data->name = $request->name;
-        $data->email = $request->email;
-        $data->password = bcrypt($request->password);
-        $data->save();
+        $this->userService->addUser($request->name,$request->email,$request->password);
 
         $notification = array(
             'message' => 'User Inserted Successfully',
@@ -52,8 +53,8 @@ class UserController extends Controller
 
     public function UserEdit($id)
     {
-        $editData = User::find($id);
-        return view('doreViews.admin.user.edit_user', compact('editData'));
+        $editData = $this->userService->findUserById($id);
+        return view('backend.user.edit_user', compact('editData'));
 
     }
 
@@ -61,7 +62,7 @@ class UserController extends Controller
     public function UserUpdate(Request $request, $id)
     {
 
-        $data = User::find($id);
+        $data = $this->userService->findUserById($id);
         $data->name = $request->name;
         $data->email = $request->email;
         if ($request->file('image')) {
@@ -71,7 +72,6 @@ class UserController extends Controller
             $file->move(public_path('/img/profiles'), $filename);
             $data['profile_photo_path'] = '/img/profiles/'.$filename;
         }
-
         $data->save();
 
         $notification = array(
@@ -86,7 +86,7 @@ class UserController extends Controller
 
     public function UserDelete($id)
     {
-        $user = User::find($id);
+        $user = $this->userService->findUserById($id);
         $user->delete();
 
         $notification = array(
@@ -97,4 +97,5 @@ class UserController extends Controller
         return redirect()->route('users.view')->with($notification);
 
     }
+
 }

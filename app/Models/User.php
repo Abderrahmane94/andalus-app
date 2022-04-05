@@ -55,7 +55,12 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $appends = [
-        'profile_photo_url',
+    public $appends = [
+        'uid', 
     ];
+
+    public function getUidAttribute()
+    {
+        return $this->attributes['id'];
+    }
 }

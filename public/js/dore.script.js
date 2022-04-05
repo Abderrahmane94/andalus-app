@@ -1,4 +1,4 @@
-/* Dore Main Script 
+/* Dore Main Script
 
 Table of Contents
 
@@ -40,7 +40,7 @@ Table of Contents
   03.33. Showing Body
   03.34. Keyboard Shortcuts
   03.35. Context Menu
-  03.36. Select from Library 
+  03.36. Select from Library
   03.37. Feedback
   03.38. Smart Wizard
   03.39. Countdown
@@ -673,11 +673,11 @@ $.dore = function (element, options) {
           $(event.target).hasClass("sidebar")
         )
       ) {
-        // Prevent sub menu closing on collapse click 
+        // Prevent sub menu closing on collapse click
         if ($(event.target).parents("a[data-toggle='collapse']").length > 0 || $(event.target).attr("data-toggle") == 'collapse') {
           return;
         }
-        // Prevent sub menu closing on custom control click 
+        // Prevent sub menu closing on custom control click
         if ($(event.target).parents(".dont-close-menu").length > 0) {
           return;
         }
@@ -2969,14 +2969,6 @@ $.dore = function (element, options) {
 
       $(".data-table-feature").DataTable({
         sDom: '<"row view-filter"<"col-sm-12"<"float-right"l><"float-left"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
-        "columns": [
-          { "data": "name" },
-          { "data": "position" },
-          { "data": "office" },
-          { "data": "age" },
-          { "data": "start_date" },
-          { "data": "salary" }
-        ],
         drawCallback: function () {
           $($(".dataTables_wrapper .pagination li:first-of-type"))
             .find("a")
@@ -2993,8 +2985,8 @@ $.dore = function (element, options) {
             next: "<i class='simple-icon-arrow-right'></i>"
           },
           search: "_INPUT_",
-          searchPlaceholder: "Search...",
-          lengthMenu: "Items Per Page _MENU_"
+          searchPlaceholder: "البحث...",
+          lengthMenu: "_MENU_ مادة لكل صفحة"
         },
       });
 
@@ -3011,13 +3003,6 @@ $.dore = function (element, options) {
         info: false,
         sDom: '<"row view-filter"<"col-sm-12"<"float-left"l><"float-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
         pageLength: 10,
-        columns: [
-          { data: "Name" },
-          { data: "Sales" },
-          { data: "Stock" },
-          { data: "Category" },
-          { data: "Check" }
-        ],
         language: {
           paginate: {
             previous: "<i class='simple-icon-arrow-left'></i>",
@@ -3037,7 +3022,7 @@ $.dore = function (element, options) {
             .addClass("next");
           $(".dataTables_wrapper .pagination").addClass("pagination-sm");
           var api = $(this).dataTable().api();
-          $("#pageCountDatatable span").html("Displaying " + parseInt(api.page.info().start + 1) + "-" + api.page.info().end + " of " + api.page.info().recordsTotal + " items");
+          $("#pageCountDatatable span").html("إظهار " + parseInt(api.page.info().start + 1) + "-" + api.page.info().end + " من " + api.page.info().recordsTotal + " مادة ");
         }
       });
 
