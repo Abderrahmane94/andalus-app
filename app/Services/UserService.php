@@ -12,17 +12,42 @@ class UserService
         return User::all();
     }
 
-    public function addUser($name, $email, $password): void
+    public function addUser($first_name, $last_name, $email, $image, $user_type): void
     {
         $data = new User();
-        $data->username = $name;
+        $data->first_name = $first_name;
+        $data->last_name = $last_name;
+        $data->username = $last_name.'.'.$first_name;
         $data->email = $email;
-        $data->password = bcrypt($password);
+        $data->user_type = $user_type;
+        $data->password = bcrypt('andalus2022');
+        if ($image != null) {
+            @unlink(public_path('/img/profiles' . $data->profile_photo_path));
+            $filename = date('YmdHi') . $image->getClientOriginalName();
+            $image->move(public_path('/img/profiles'), $filename);
+            $data['profile_photo_path'] = '/img/profiles/'.$filename;
+        }
         $data->save();
     }
 
     public function findUserById($userId)
     {
         return User::find($userId);
+    }
+
+    public function editUser($id, $first_name, $last_name,$email, $file)
+    {
+        $data = $this->findUserById($id);
+        $data->first_name = $first_name;
+        $data->last_name = $last_name;
+        $data->email = $email;
+        if ($file != null) {
+            @unlink(public_path('/img/profiles' . $data->profile_photo_path));
+            $filename = date('YmdHi') . $file->getClientOriginalName();
+            $file->move(public_path('/img/profiles'), $filename);
+            $data['profile_photo_path'] = '/img/profiles/'.$filename;
+        }
+        $data->username = $last_name.'.'.$first_name;
+        $data->save();
     }
 }

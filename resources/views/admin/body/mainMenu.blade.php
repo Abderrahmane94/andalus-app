@@ -9,7 +9,7 @@
     <div class="main-menu">
         <div class="scroll">
             <ul class="list-unstyled">
-                <li class="{{ ($route == 'dashboard' or $prefix =='/users')?'active':'' }}">
+                <li class="{{ ($route == 'dashboard')?'active':'' }}">
                     <a href="#dashboard">
                         <i class="simple-icon-speedometer"></i> لوحة القيادة
                     </a>
@@ -34,7 +34,7 @@
                         <i class="iconsminds-money-bag"></i> إدارة الحسابات
                     </a>
                 </li>
-                <li class="{{ ($prefix =='/setups')?'active':'' }}">
+                <li class="{{ ($prefix =='/users')?'active':'' }}">
                     <a href="#users">
                         <i class="iconsminds-network"></i> إدارة المستخدمين
                     </a>
@@ -57,9 +57,9 @@
                         <i class="iconsminds-line-chart-3"></i> <span class="d-inline-block">تفاصيل المداخيل</span>
                     </a>
                 </li>
-                <li class="{{ ($prefix == '/users')?'active':'' }}">
-                    <a href=" {{ Route('users.view') }}">
-                        <i class="iconsminds-line-chart-1"></i> <span class="d-inline-block">تفاصيل المصاريف</span>
+                <li class="">
+                    <a href=" {{ Route('dashboard') }} ">
+                        <i class="iconsminds-line-chart-3"></i> <span class="d-inline-block">تفاصيل المصاريف</span>
                     </a>
                 </li>
 
@@ -90,7 +90,7 @@
                         <i class="iconsminds-basket-coins"></i> <span class="d-inline-block">فئات الرسوم</span>
                     </a>
                 </li>
-                <li class="{{ ($route == 'fee.amount.view')?'active':'' }}">
+                <li class="{{ ($route =='fee.amount.view')?'active':'' }}">
                     <a href=" {{ Route('fee.amount.view') }}">
                         <i class="iconsminds-coins"></i> <span class="d-inline-block">مبالغ فئات الرسوم</span>
                     </a>
@@ -147,19 +147,6 @@
                     </a>
                 </li>
             </ul>
-            <ul class="list-unstyled" data-link="users">
-                <li class="{{ ($prefix == '/users')?'active':'' }}">
-                    <a href="{{ Route('users.view') }}">
-                        <i class="iconsminds-mens"></i> <span class="d-inline-block">عرض المستخدمين</span>
-                    </a>
-                </li>
-                <li class="{{ ($prefix == '/users')?'active':'' }}">
-                    <a href="{{ Route('users.view') }}">
-                        <i class="iconsminds-male"></i> <span class="d-inline-block">إضافة مستخدم</span>
-                    </a>
-                </li>
-
-            </ul>
             <ul class="list-unstyled" data-link="account">
                 <li class="{{ ($route == 'student.fee.view')?'active':'' }}">
                     <a href="{{ Route('student.fee.view') }}">
@@ -178,7 +165,13 @@
                 </li>
 
             </ul>
-
+            <ul class="list-unstyled" data-link="users">
+                <li class="{{ ($prefix == '/users')?'active':'' }}">
+                    <a href="{{ Route('users.view') }}">
+                        <i class="iconsminds-male"></i> <span class="d-inline-block">قائمة المستخدمين</span>
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 </div>

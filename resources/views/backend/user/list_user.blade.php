@@ -4,22 +4,22 @@
         <div class="row">
             <div class="col-12">
                 <div class="mb-3">
-                    <h1>Users List</h1>
+                    <h1>قائمة المستخدمين</h1>
                     <div class="text-zero top-right-button-container">
                         <a type="button" href="{{ route('users.add') }}"
-                           class="btn btn-primary btn-lg top-right-button mr-1">{{__('Nouveau Utilisateur')}}</a>
+                           class="btn btn-primary btn-lg top-right-button mr-1">{{__('مستخدم جديد')}}</a>
                     </div>
-                    <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
-                        <ol class="breadcrumb pt-0">
-                            <li class="breadcrumb-item">
-                                <a href="#">الكل</a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="#">الدعم الدراسي</a>
-                            </li>
-                            <li class="breadcrumb-item active" aria-current="page">التحضيري</li>
-                        </ol>
-                    </nav>
+                    {{-- <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+                         <ol class="breadcrumb pt-0">
+                             <li class="breadcrumb-item">
+                                 <a href="#">الكل</a>
+                             </li>
+                             <li class="breadcrumb-item">
+                                 <a href="#">الدعم الدراسي</a>
+                             </li>
+                             <li class="breadcrumb-item active" aria-current="page">التحضيري</li>
+                         </ol>
+                     </nav>--}}
 
                 </div>
 
@@ -71,21 +71,30 @@
                 @foreach($allData as $key => $user)
 
                     <div class="card d-flex flex-row mb-3">
-                        <a class="d-flex" >
-                            <img src=" {{ (!empty($user->profile_photo_path))? $user->profile_photo_path:asset('img/profiles/no image.png') }} " alt="Fat Rascal"
-                                 class="list-thumbnail responsive border-0 card-img-left"/>
+                        <a class="d-flex">
+                            <img
+                                src=" {{ (!empty($user->profile_photo_path))? $user->profile_photo_path:asset('img/profiles/no image.png') }} "
+                                alt="Fat Rascal"
+                                class="list-thumbnail responsive border-0 card-img-left"/>
 
                         </a>
                         <div class="pl-2 d-flex flex-grow-1 min-width-zero">
                             <div
                                 class="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
-                                <a  class="w-40 w-sm-100">
+                                <a class="w-15 w-sm-100">
                                     <p class="list-item-heading mb-0 truncate">{{$user->first_name}}</p>
+                                </a>
+                                <a class="w-15 w-sm-100">
+                                    <p class="list-item-heading mb-0 truncate">{{$user->last_name}}</p>
                                 </a>
                                 <p class="mb-0 text-muted text-small w-15 w-sm-100">{{$user->email}}</p>
                                 <p class="mb-0 text-muted text-small w-15 w-sm-100">{{$user->created_at}}</p>
                                 <div class="w-15 w-sm-100">
-                                    <span class="badge badge-pill badge-primary">خصوصي</span>
+                                    @if($user->user_type == 'Employee')
+                                        <span class="badge badge-pill badge-primary">أستاذ</span>
+                                    @elseif($user->user_type == 'إدارة')
+                                        <span class="badge badge-pill badge-info">إدارة</span>
+                                    @endif
                                 </div>
                                 <div>
 
@@ -148,58 +157,5 @@
             </div>
         </div>
     </div>
-
-    <!-----Modals---->
-    {{--    <div class="modal fade modal-left" id="ajoutModalLeft" tabindex="-1" role="dialog"--}}
-    {{--         aria-labelledby="ajoutModalLeft" aria-hidden="true">--}}
-    {{--        <div class="modal-dialog" role="document">--}}
-    {{--            <div class="modal-content">--}}
-    {{--                <div class="modal-header">--}}
-    {{--                    <h5 class="modal-title">إضافة أستاذ جديد</h5>--}}
-    {{--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">--}}
-    {{--                        <span aria-hidden="true">&times;</span>--}}
-    {{--                    </button>--}}
-    {{--                </div>--}}
-    {{--                <div class="modal-body">--}}
-
-    {{--                    <form>--}}
-    {{--                        <div class="form-group">--}}
-    {{--                            <label>Title</label>--}}
-    {{--                            <input type="text" class="form-control" placeholder="">--}}
-    {{--                        </div>--}}
-    {{--                        <div class="form-group">--}}
-    {{--                            <label>Details</label>--}}
-    {{--                            <textarea placeholder="" class="form-control" rows="2"></textarea>--}}
-    {{--                        </div>--}}
-
-    {{--                        <div class="form-group">--}}
-    {{--                            <label>Category</label>--}}
-    {{--                            <select class="form-control">--}}
-    {{--                                <option label="&nbsp;">&nbsp;</option>--}}
-    {{--                                <option value="Flexbox">Flexbox</option>--}}
-    {{--                                <option value="Sass">Sass</option>--}}
-    {{--                                <option value="React">React</option>--}}
-    {{--                            </select>--}}
-    {{--                        </div>--}}
-
-    {{--                        <div class="form-group">--}}
-    {{--                            <label>Status</label>--}}
-    {{--                            <div class="custom-control custom-checkbox">--}}
-    {{--                                <input type="checkbox" class="custom-control-input"--}}
-    {{--                                       id="customCheck1">--}}
-    {{--                                <label class="custom-control-label"--}}
-    {{--                                       for="customCheck1">Completed</label>--}}
-    {{--                            </div>--}}
-    {{--                        </div>--}}
-    {{--                    </form>--}}
-    {{--                </div>--}}
-    {{--                <div class="modal-footer">--}}
-    {{--                    <button type="button" class="btn btn-outline-primary"--}}
-    {{--                            data-dismiss="modal">Cancel</button>--}}
-    {{--                    <button type="button" class="btn btn-primary">Submit</button>--}}
-    {{--                </div>--}}
-    {{--            </div>--}}
-    {{--        </div>--}}
-    {{--    </div>--}}
 
 @endsection

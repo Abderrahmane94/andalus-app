@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -10,12 +11,21 @@ use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
+
+
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function ProfileView()
     {
         $id = Auth::user()->id;
         $user = User::find($id);
 
-        return view('doreViews.admin.user.view_profile', compact('user'));
+        return view('backend.user.view_profile', compact('user'));
     }
 
 
@@ -23,28 +33,17 @@ class ProfileController extends Controller
     {
         $id = Auth::user()->id;
         $editData = User::find($id);
-        return view('doreViews.admin.user.edit_profile', compact('editData'));
+        return view('backend.user.edit_profile', compact('editData'));
     }
 
 
     public function ProfileStore(Request $request)
     {
 
-        $data = User::find(Auth::user()->id);
-        $data->name = $request->name;
-        $data->email = $request->email;
-
-        if ($request->file('image')) {
-            $file = $request->file('image');
-            @unlink(public_path('/img/profiles' . $data->profile_photo_path));
-            $filename = date('YmdHi') . $file->getClientOriginalName();
-            $file->move(public_path('/img/profiles'), $filename);
-            $data['profile_photo_path'] = '/img/profiles/' . $filename;
-        }
-        $data->save();
+        $this->userService->editUser(Auth::user()->id, $request->first_name, $request->last_name, $request->email, $request->image);
 
         $notification = array(
-            'message' => 'User Profile Updated Successfully',
+            'message' => 'تم تعديل معلوماتك الشخصية بنجاح',
             'alert-type' => 'success'
         );
 
@@ -54,7 +53,7 @@ class ProfileController extends Controller
 
     public function PasswordView()
     {
-        return view('doreViews.admin.user.edit_password');
+        return view('backend.user.edit_password');
     }
 
 
@@ -65,6 +64,12 @@ class ProfileController extends Controller
             'password' => 'required|confirmed',
         ]);
 
+        $notification = array(
+            'message' => 'كلمة المرور الحالية خاطئة',
+            'alert-type' => 'error'
+        );
+
+
 
         $hashedPassword = Auth::user()->password;
         if (Hash::check($request->oldpassword, $hashedPassword)) {
@@ -74,7 +79,7 @@ class ProfileController extends Controller
             Auth::logout();
             return redirect()->route('login');
         } else {
-            return redirect()->back();
+            return redirect()->back()->with($notification);
         }
 
     }

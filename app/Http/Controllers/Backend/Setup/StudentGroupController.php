@@ -22,7 +22,7 @@ class StudentGroupController extends Controller
     public function StudentGroupAdd()
     {
         $data['subjects'] = SchoolSubject::all();
-        $data['teachers'] = User::where('usertype','Employee')->get();
+        $data['teachers'] = User::where('user_type','Employee')->get();
         $data['classes'] = StudentClass::all();
         $data['rooms'] = SchoolClasses::all();
         return view('backend.setup.group.add-group',$data);

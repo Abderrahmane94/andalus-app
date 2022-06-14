@@ -31,20 +31,13 @@ class UserController extends Controller
     public function UserStore(Request $request)
     {
 
-        $validatedData = $request->validate([
-            'email' => 'required|unique:users',
-            'name' => 'required',
-        ]);
-
-
-        $this->userService->addUser($request->name,$request->email,$request->password);
+        $this->userService->addUser($request->first_name, $request->last_name, $request->email, $request->image, $request->user_type);
 
         $notification = array(
-            'message' => 'User Inserted Successfully',
+            'message' => 'تم إضافة المستخدم بنجاح',
             'alert-type' => 'success'
 
         );
-
 
         return redirect()->route('users.view')->with($notification);
 
@@ -61,21 +54,10 @@ class UserController extends Controller
 
     public function UserUpdate(Request $request, $id)
     {
-
-        $data = $this->userService->findUserById($id);
-        $data->name = $request->name;
-        $data->email = $request->email;
-        if ($request->file('image')) {
-            $file = $request->file('image');
-            @unlink(public_path('/img/profiles' . $data->profile_photo_path));
-            $filename = date('YmdHi') . $file->getClientOriginalName();
-            $file->move(public_path('/img/profiles'), $filename);
-            $data['profile_photo_path'] = '/img/profiles/'.$filename;
-        }
-        $data->save();
+        $this->userService->editUser($id, $request->first_name, $request->last_name, $request->email, $request->file('image'));
 
         $notification = array(
-            'message' => 'User Updated Successfully',
+            'message' => 'تم تعديل المستخدم بنجاح',
             'alert-type' => 'info'
         );
 
@@ -90,7 +72,7 @@ class UserController extends Controller
         $user->delete();
 
         $notification = array(
-            'message' => 'User Deleted Successfully',
+            'message' => 'تم حذف المستخدم بنجاح',
             'alert-type' => 'info'
         );
 

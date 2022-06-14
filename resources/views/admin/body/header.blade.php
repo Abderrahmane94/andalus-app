@@ -88,7 +88,7 @@
             </div>
 
 
-            <!--language-->
+{{--            <!--language-->
             <div class="position-relative d-none d-sm-inline-block">
 
                 <div class="nav-item dropdown">
@@ -105,7 +105,7 @@
                         <a class="dropdown-item" href="{{ url('locale/fr') }}">French</a>
                     </div>
                 </div>
-            </div>
+            </div>--}}
 
             <!--notifications-->
             <div class="position-relative d-inline-block">
@@ -185,15 +185,13 @@
                     </span>
             </button>
 
-            <div class="dropdown-menu dropdown-menu-right mt-3">
-                <a class="dropdown-item" href="{{ route('profile.view') }}">{{__('My Profile')}}</a>
-                <a class="dropdown-item" href="{{ route('password.view') }}">{{__('Change Password')}}</a>
-                <a class="dropdown-item" href="#">History</a>
-                <a class="dropdown-item" href="#">Support</a>
+            <div class="dropdown-menu mt-3">
+                <a class="dropdown-item" href="{{ route('profile.view') }}">{{__('حسابي')}}</a>
+                <a class="dropdown-item" href="{{ route('password.view') }}">{{__('تغيير كلمة المرور')}}</a>
                 <a class="dropdown-item" href="{{ route('logout') }}"
                    onclick="event.preventDefault();
                        document.getElementById('logout-form').submit();">
-                    {{ __('auth.Logout') }}
+                    {{ __('خروج') }}
                 </a>
 
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">

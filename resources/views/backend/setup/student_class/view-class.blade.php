@@ -7,7 +7,7 @@
             <div class="col-12">
                 <h1>فئات التلاميذ</h1>
 
-                <div class="top-right-button-container">
+{{--                <div class="top-right-button-container"> data already exist in the database
 
                     <div class="btn-group">
                         <div class="row">
@@ -16,7 +16,7 @@
                         </div>
 
                     </div>
-                </div>
+                </div>--}}
 
 
                 <div class="mb-2">
@@ -60,7 +60,7 @@
                         <th>المستوى</th>
                         <th>السنة</th>
                         <th>الشعبة</th>
-                        <th>عمليات</th>
+                       {{-- <th>عمليات</th>--}}
                     </tr>
                     </thead>
                     <tbody>
@@ -79,7 +79,7 @@
                             <td>
                                 <p class="text-muted">{{$student->section}}</p>
                             </td>
-                            <td>
+{{--                            <td>
                                 <a title="تعديل" href="{{ route('student.class.edit',$student->id) }}"
                                    class="btn btn-outline-secondary icon-button">
                                     <i class="fa fa-pencil-square-o">
@@ -90,10 +90,7 @@
                                     <i class="simple-icon-trash">
                                     </i>
                                 </a>
-
-
-                            </td>
-
+                            </td>--}}
                         </tr>
                     @endforeach
 
