@@ -1,7 +1,6 @@
 @extends('admin.adminBase')
 @section('admin')
 
-
     <div class="content-wrapper">
         <div class="container-full">
             <!-- Content Header (Page header) -->
@@ -33,15 +32,16 @@
                                 <thead>
                                 <tr>
                                     <th width="5%">الرقم</th>
-                                    <th>الاسم</th>
+                                    <th width="25%">الاسم</th>
                                     <th>المادة</th>
-                                    <th>الأستاذ</th>
-                                    <th>القاعة</th>
-                                    <th>يوم الدرس</th>
+                                    <th width="15%">الأستاذ</th>
+                                    <th width="10%">القاعة</th>
+                                    <th width="10%">يوم الدرس</th>
                                     <th>بداية الدرس</th>
                                     <th>نهاية الدرس</th>
-                                    <th>نوع الدرس</th>
-                                    <th width="25%">عمليات</th>
+                                    <th width="5%">نوع الدرس</th>
+                                    <th width="5%">الحالة</th>
+                                    <th width="40%">عمليات</th>
 
                                 </tr>
                                 </thead>
@@ -57,8 +57,35 @@
                                         <td> {{ $group->start_time }}</td>
                                         <td> {{ $group->end_time }}</td>
                                         <td> {{ $group->group_type }}</td>
+                                        <td>
+                                            @if($group->active)
+                                                <span class="badge badge-pill badge-success">مفعل</span>
+                                            @else
+                                                <span class="badge badge-pill badge-danger">غير مفعل</span>
+                                            @endif
+                                        </td>
 
                                         <td>
+                                            <a title="تفصيل" href="{{ route('student.group.detail',$group->id) }}"
+                                               class="btn btn-outline-info icon-button">
+                                                <i class="simple-icon-info">
+                                                </i>
+                                            </a>
+                                            @if($group->active)
+                                                <a title="تعطيل الصف"
+                                                   href="{{ route('student.group.update.status',$group->id) }}"
+                                                   class="btn btn-outline-danger icon-button">
+                                                    <i class="simple-icon-close">
+                                                    </i>
+                                                </a>
+                                            @else
+                                                <a title="تفعيل الصف"
+                                                   href="{{ route('student.group.update.status',$group->id) }}"
+                                                   class="btn btn-outline-success icon-button">
+                                                    <i class="simple-icon-check">
+                                                    </i>
+                                                </a>
+                                            @endif
                                             <a title="تعديل" href="{{ route('student.group.edit',$group->id) }}"
                                                class="btn btn-outline-secondary icon-button">
                                                 <i class="fa fa-pencil-square-o">
@@ -89,7 +116,5 @@
             <!-- /.row -->
         </div>
     </div>
-
-
 
 @endsection

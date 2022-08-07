@@ -26,7 +26,7 @@
         <div class="position-relative d-none d-sm-inline-block">
             <button class="header-icon btn btn-empty" type="button" id="iconMenuButton" data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false">
-                <i class="simple-icon-options"></i>
+                <i class="simple-icon-grid"></i>
             </button>
             <div class="dropdown-menu dropdown-menu-left mt-3  position-absolute" id="iconMenuDropdown">
                 <a href="#" class="icon-menu-item">
@@ -60,6 +60,8 @@
                 </a>
 
             </div>
+            <span class="text-muted" disabled>{{\App\Services\SetupService::findActiveYear()->name}}</span>
+
         </div>
         {{--<div class="search" data-search-path="Pages.Search.html?q=">
             <input placeholder="Search...">
@@ -179,7 +181,7 @@
         <div class="user d-inline-block">
             <button class="btn btn-empty p-0" type="button" data-toggle="dropdown" aria-haspopup="true"
                     aria-expanded="false">
-                <span class="name">{{Auth::user()->name }}</span>
+                <span class="name">{{Auth::user()->first_name }} {{Auth::user()->last_name }}</span>
                 <span>
                         <img alt="Profile Picture" src="{{ (!empty(Auth::user()->profile_photo_path))? Auth::user()->profile_photo_path:asset('img/profiles/no image.png') }} " />
                     </span>

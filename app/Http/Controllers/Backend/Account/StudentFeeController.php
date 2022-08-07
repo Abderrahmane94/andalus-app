@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend\Account;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use App\Models\AssignStudent;
@@ -33,7 +34,7 @@ class StudentFeeController extends Controller
 
     public function StudentFeeAdd()
     {
-        $data['students'] = User::where('usertype', 'Student')->get();
+        $data['students'] = User::where('user_type', 'Student')->get();
         $data['classes'] = StudentClass::all();
         $data['fee_categories'] = FeeCategory::all();
         return view('backend.account.student_fee.student-fee-add', $data);
@@ -105,7 +106,8 @@ class StudentFeeController extends Controller
         if ($globalAmountPaid >= $globalAmountToBePaid) {
 
             foreach ($request->checkBox as $key => $value) {
-                AccountStudentFee::where('id', '=', $key)->update(['fee_status' => true, 'amount_paid' => $request->amountToBePaid[$key]]);
+                AccountStudentFee::where('id', '=', $key)->update(['fee_status' => true,'paiement_date' => Carbon::now(), 'amount_paid' => $request->amountToBePaid[$key]]);
+
             }
 
             // ajout accompt
@@ -125,6 +127,7 @@ class StudentFeeController extends Controller
                 } else {
                     $accountStudentFee->fee_status = true;
                     $accountStudentFee->amount_paid = $request->amountToBePaid[$key];
+                    $accountStudentFee->paiement_date = Carbon::now();
                     $accountStudentFee->save();
 
                 }
@@ -180,22 +183,15 @@ class StudentFeeController extends Controller
 
     } // end method
 
-
     public function StudentFeeWise(Request $request)
     {
-
         $data['allData'] = AccountStudentFee::leftJoin('users', 'account_student_fees.student_id', '=', 'users.id')
             ->select('account_student_fees.*', 'users.id as user_id', 'users.first_name', 'users.last_name')
             ->where('users.id_no','like', '%' .  $request->code_student)
             ->get();
         $data['first_name'] = $data['allData']->pluck('first_name')->first();
         $data['last_name'] = $data['allData']->pluck('last_name')->first();
-
         $data['remaining_fee'] = $data['allData']->where('fee_status', false);
-
         return view('backend.account.student_fee.student-fee-add', $data);
-
     }
-
-
 }

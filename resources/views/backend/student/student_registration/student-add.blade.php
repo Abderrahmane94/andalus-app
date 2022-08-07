@@ -1,6 +1,7 @@
 @extends('admin.adminBase')
 @section('admin')
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 
 
@@ -14,7 +15,7 @@
                 <!-- Basic Forms -->
                 <div class="box">
                     <div class="box-header with-border">
-                        <h4 class="box-title">إضافة تلميذ</h4>
+                        <h1 class="box-title"><b>إضافة تلميذ</b></h1>
 
                     </div>
                     <!-- /.box-header -->
@@ -86,10 +87,10 @@
                                                     <div class="col-md-4">
 
                                                         <div class="form-group">
-                                                            <h5>اسم الأم <span class="text-danger">*</span></h5>
+                                                            <h5>اسم الأم </h5>
                                                             <div class="controls">
                                                                 <input type="text" name="mother_name" class="form-control"
-                                                                       required="">
+                                                                       >
                                                             </div>
                                                         </div>
 
@@ -98,10 +99,10 @@
                                                     <div class="col-md-4">
 
                                                         <div class="form-group">
-                                                            <h5>اسم الأب <span class="text-danger">*</span></h5>
+                                                            <h5>اسم الأب </h5>
                                                             <div class="controls">
                                                                 <input type="text" name="father_name" class="form-control"
-                                                                       required="">
+                                                                       >
                                                             </div>
                                                         </div>
 
@@ -110,10 +111,10 @@
                                                     <div class="col-md-4">
 
                                                         <div class="form-group">
-                                                            <h5>العنوان <span class="text-danger">*</span></h5>
+                                                            <h5>العنوان </h5>
                                                             <div class="controls">
                                                                 <input type="text" name="address" class="form-control"
-                                                                       required="">
+                                                                       >
                                                             </div>
                                                         </div>
 
@@ -152,10 +153,10 @@
                                                     <div class="col-md-4">
 
                                                         <div class="form-group">
-                                                            <h5>التخفيض <span class="text-danger">*</span></h5>
+                                                            <h5>التخفيض </h5>
                                                             <div class="controls">
                                                                 <input type="text" name="discount" class="form-control"
-                                                                       required="">
+                                                                       >
                                                             </div>
                                                         </div>
 
@@ -243,7 +244,7 @@
                                                 </div> <!-- End 5TH Row -->
 
 
-                                                <div class="row">
+                                                {{--<div class="row">
 
                                                     <div class="col-md-5">
 
@@ -269,7 +270,7 @@
                                                             class="fa fa-plus-circle"></i> </span>
                                                     </div><!-- End col-md-5 -->
 
-                                                </div> <!-- end Row -->
+                                                </div> <!-- end Row -->--}}
                                             </div>    <!-- // End add_item -->
 
 

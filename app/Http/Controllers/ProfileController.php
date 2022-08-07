@@ -39,8 +39,7 @@ class ProfileController extends Controller
 
     public function ProfileStore(Request $request)
     {
-
-        $this->userService->editUser(Auth::user()->id, $request->first_name, $request->last_name, $request->email, $request->image);
+        $this->userService->editUser(Auth::user()->id, $request->first_name, $request->last_name, $request->email, $request->image, Auth::user()->user_type);
 
         $notification = array(
             'message' => 'تم تعديل معلوماتك الشخصية بنجاح',
@@ -69,18 +68,13 @@ class ProfileController extends Controller
             'alert-type' => 'error'
         );
 
+        $oldPassword = $this->userService->updatePassword($request);
 
-
-        $hashedPassword = Auth::user()->password;
-        if (Hash::check($request->oldpassword, $hashedPassword)) {
-            $user = User::find(Auth::id());
-            $user->password = Hash::make($request->password);
-            $user->save();
+        if ($oldPassword) {
             Auth::logout();
-            return redirect()->route('login');
+            redirect()->route('login');
         } else {
-            return redirect()->back()->with($notification);
+            redirect()->back()->with($notification);
         }
-
     }
 }

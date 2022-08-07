@@ -20,9 +20,7 @@ class StudentYearController extends Controller
     {
         $data['allData'] = $this->setupService->getAllYears();
         return view('backend.setup.academic_year.view-year', $data);
-
     }
-
 
     public function StudentYearAdd()
     {
@@ -39,22 +37,17 @@ class StudentYearController extends Controller
         );
 
         return redirect()->route('student.year.view')->with($notification);
-
     }
-
 
     public function StudentYearEdit($id)
     {
         $editData = $this->setupService->findYearById($id);
         return view('backend.setup.academic_year.edit-year', compact('editData'));
-
     }
-
 
     public function StudentYearUpdate(Request $request, $id)
     {
-
-        $this->setupService->editYear($id, $request->name);
+        $this->setupService->editYear($id, $request);
 
         $notification = array(
             'message' => 'تم تعديل السنة الدراسية بنجاح',
@@ -64,11 +57,9 @@ class StudentYearController extends Controller
         return redirect()->route('student.year.view')->with($notification);
     }
 
-
     public function StudentYearDelete($id)
     {
-        $year = $this->setupService->findYearById($id);
-        $year->delete();
+        $this->setupService->deleteYearById($id);
 
         $notification = array(
             'message' => 'تم إزالة السنة الدراسية بنجاح',
@@ -76,8 +67,5 @@ class StudentYearController extends Controller
         );
 
         return redirect()->route('student.year.view')->with($notification);
-
     }
-
-
 }

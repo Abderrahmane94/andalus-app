@@ -1,24 +1,10 @@
 @extends('admin.adminBase')
 @section('admin')
 
-
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <h1>السنوات الدراسية</h1>
-
-                <div class="top-right-button-container">
-
-                    <div class="btn-group">
-                        <div class="row">
-                            <a href="{{ route('student.year.add') }}" style="float:left;"
-                               class="btn btn-success btn-lg mr-2">إضافة سنة دراسية</a>
-
-                        </div>
-
-                    </div>
-                </div>
-
+                <h1>قائمة التلاميذ</h1>
 
                 <div class="mb-2">
                     <a class="btn pt-0 pl-0 d-inline-block d-md-none" data-toggle="collapse" href="#displayOptions"
@@ -57,42 +43,39 @@
                        data-order="[[ 1, &quot;desc&quot; ]]">
                     <thead>
                     <tr>
-                        <th>الرقم</th>
+                        <th>الصورة</th>
                         <th>الاسم</th>
-                        <th>الحالة</th>
-                        <th>علميات</th>
-
-
+                        <th>اللقب</th>
+                        <th>المدرسة</th>
+                        <th>عمليات</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($allData as $key => $year )
+                    @foreach($students as $key => $student )
                         <tr>
 
                             <td>
-                                <p class="list-item-heading">{{$key+1}}</p>
+                                <img
+                                    src=" {{ (!empty($student->profile_photo_path))? $student->profile_photo_path:asset('img/profiles/no image.png') }} "
+                                    alt="Fat Rascal"
+                                    class="list-thumbnail responsive border-0 card-img-left"/>
                             </td>
                             <td>
-                                <p class="list-item-heading">{{$year->name}}</p>
+                                <p class="list-item-heading">{{$student->first_name}}</p>
                             </td>
                             <td>
-                                <p class="list-item-heading">{{$year->active ? 'مفعلة':'غير مفعلة'}}</p>
+                                <p class="text-muted">{{$student->last_name}}</p>
                             </td>
                             <td>
-                                <a title="تعديل" href="{{ route('student.year.edit',$year->id) }}"
-                                   class="btn btn-outline-secondary icon-button">
-                                    <i class="fa fa-pencil-square-o">
-                                    </i>
-                                </a>
-                                <a title="حذف" href="{{ route('student.year.delete',$year->id) }}"
+                                <p class="text-muted">{{$student->school}}</p>
+                            </td>
+                            <td>
+                                <a title="حذف التلميذ من الصف" href="{{ route('student.group.detail.delete',[$student->group_id,$student->student_id]) }}"
                                    class="btn btn-outline-danger icon-button" id="delete">
                                     <i class="simple-icon-trash">
                                     </i>
                                 </a>
                             </td>
-
-
-
                         </tr>
                     @endforeach
 
@@ -101,9 +84,5 @@
             </div>
         </div>
     </div>
-
-
-
-
 
 @endsection

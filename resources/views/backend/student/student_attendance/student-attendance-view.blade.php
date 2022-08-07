@@ -16,7 +16,7 @@
 
                         <div class="box">
                             <div class="box-header with-border">
-                                <h3 class="box-title">كشف حضور التلاميذ</h3>
+                                <h1 class="box-title"><b>كشف حضور التلاميذ</b></h1>
 
                                 <form method="post" action="{{ route('student.attendance.add') }}">
                                     @csrf
@@ -26,8 +26,9 @@
                                                 <select name="group_id"
                                                         class="form-control" required
                                                         oninvalid="this.setCustomValidity('الرجاء اختيار الفوج')"
-                                                        oninput="this.setCustomValidity('')">
-                                                    <option value="" selected="" disabled="">اختر الصف الدراسي...
+                                                        oninput="this.setCustomValidity('')"
+                                                        style="width: 100%">
+                                                    <option value="" selected="" disabled="" >اختر الصف الدراسي ...
                                                     </option>
                                                     @foreach($groups as $group)
                                                         <option
@@ -60,13 +61,13 @@
                                             <tr>
                                                 <td>{{ $key+1 }}</td>
                                                 <td>{{ $value['group']['name'] }}</td>
-                                                <td> {{ date('Y M D', strtotime($value->date)) }}</td>
+                                                <td> {{ date('Y-m-d', strtotime($value->date)) }}</td>
 
                                                 <td>
-                                                    <a href="{{ route('student.attendance.edit',$value->date) }}"
-                                                       class="btn btn-info">Edit</a>
+                                                    <a href="{{ route('student.attendance.edit',$value->id) }}"
+                                                       class="btn btn-info">تعديل</a>
                                                     <a href="{{ route('student.attendance.details',[$value->date,$value['group']['id']]) }}"
-                                                       class="btn btn-danger">Details</a>
+                                                       class="btn btn-danger">تفاصيل</a>
 
                                                 </td>
 

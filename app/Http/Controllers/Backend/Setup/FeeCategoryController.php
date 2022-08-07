@@ -10,7 +10,6 @@ use App\Models\FeeCategory;
 
 class FeeCategoryController extends Controller
 {
-
     protected $setupService;
 
     public function __construct(SetupService $setupService)
@@ -25,16 +24,13 @@ class FeeCategoryController extends Controller
 
     }
 
-
     public function FeeCatAdd()
     {
         return view('backend.setup.fee_category.add-fee-category');
     }
 
-
     public function FeeCatStore(Request $request)
     {
-
         $this->setupService->addFeeCategory($request->name);
 
         $notification = array(
@@ -43,21 +39,16 @@ class FeeCategoryController extends Controller
         );
 
         return redirect()->route('fee.category.view')->with($notification);
-
     }
-
 
     public function FeeCatEdit($id)
     {
         $editData = $this->setupService->findFeeCategoryById($id);
         return view('backend.setup.fee_category.edit-fee-category', compact('editData'));
-
     }
-
 
     public function FeeCategoryUpdate(Request $request, $id)
     {
-
         $this->setupService->editFeeCategory($id, $request->name);
 
         $notification = array(
@@ -68,13 +59,9 @@ class FeeCategoryController extends Controller
         return redirect()->route('fee.category.view')->with($notification);
     }
 
-
     public function FeeCategoryDelete($id)
     {
-
-        FeeCategoryAmount::where('fee_category_id', $id)->delete();
-        $this->setupService->findFeeCategoryById($id)->delete();
-
+        $this->setupService->deleteFeeCategoryById($id);
 
         $notification = array(
             'message' => 'تم إزالة فئة الرسوم بنجاح',
@@ -82,8 +69,5 @@ class FeeCategoryController extends Controller
         );
 
         return redirect()->route('fee.category.view')->with($notification);
-
     }
-
-
 }

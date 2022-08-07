@@ -141,6 +141,7 @@
                                                 <th width="5%">الرقم</th>
                                                 <th>الاسم</th>
                                                 <th>الصورة</th>
+                                                <th>نوع التوظيف</th>
                                                 <th width="25%">عمليات</th>
 
                                             </tr>
@@ -152,9 +153,10 @@
                                                     <td> {{ $value->last_name  }}  {{ $value->first_name  }}</td>
                                                     <td>
                                                         <img
-                                                            src="{{ (!empty($value->image))? url('upload/student_images/'.$value->image):url('upload/no_image.jpg') }}"
+                                                            src="{{ (!empty($value->profile_photo_path))? url($value->profile_photo_path):url('upload/no_image.jpg') }}"
                                                             style="width: 60px; width: 60px;">
                                                     </td>
+                                                    <td> {{ $value->user_type }} </td>
                                                     <td>
 
                                                         <a title="تعديل" href="{{ route('employee.registration.edit',$value->id) }}"

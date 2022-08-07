@@ -4,6 +4,9 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class UserService
 {
@@ -35,12 +38,23 @@ class UserService
         return User::find($userId);
     }
 
-    public function editUser($id, $first_name, $last_name,$email, $file)
+    public function findUserByType($type)
+    {
+        return User::where('user_type',$type)->get();
+    }
+
+    public function findUserByCancelingType($type)
+    {
+        return User::where('user_type','!=',$type)->get();
+    }
+
+    public function editUser($id, $first_name, $last_name,$email, $file, $user_type)
     {
         $data = $this->findUserById($id);
         $data->first_name = $first_name;
         $data->last_name = $last_name;
         $data->email = $email;
+        $data->user_type = $user_type;
         if ($file != null) {
             @unlink(public_path('/img/profiles' . $data->profile_photo_path));
             $filename = date('YmdHi') . $file->getClientOriginalName();
@@ -49,5 +63,18 @@ class UserService
         }
         $data->username = $last_name.'.'.$first_name;
         $data->save();
+    }
+
+    public function updatePassword($request) : bool {
+
+        $hashedPassword = Auth::user()->password;
+        if (Hash::check($request->oldpassword, $hashedPassword)) {
+            $user = User::find(Auth::id());
+            $user->password = Hash::make($request->password);
+            $user->save();
+            return true;
+        } else {
+            return false;
+        }
     }
 }

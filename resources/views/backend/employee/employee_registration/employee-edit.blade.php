@@ -23,11 +23,9 @@
                             <div class="col">
 
                                 <form method="post" action="{{ route('update.employee.registration',$editData->id) }}"
-                                      enctype="multipart/form-data" >
+                                      enctype="multipart/form-data">
                                     @csrf
-                                    {{--
-                                             <input type="hidden" name="id" value="{{ $editData->id }}">
-                                    --}}
+
                                     <div class="row">
                                         <div class="col-12">
 
@@ -55,7 +53,7 @@
                                                 </div> <!-- End Col md 4 -->
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <h5>Gender <span class="text-danger">*</span></h5>
+                                                        <h5>الجنس <span class="text-danger">*</span></h5>
                                                         <div class="controls">
                                                             <select name="gender" id="gender" required=""
                                                                     class="form-control">
@@ -83,7 +81,8 @@
                                                     <div class="form-group">
                                                         <h5>تاريخ الميلاد <span class="text-danger">*</span></h5>
                                                         <div class="controls">
-                                                            <input id="datePicker" name="dob" class="form-control datepicker"
+                                                            <input id="datePicker" name="dob"
+                                                                   class="form-control datepicker"
                                                                    required="" autocomplete="off"
                                                                    value="{{ $editData['dob'] }}">
                                                         </div>
@@ -120,7 +119,19 @@
                                             </div> <!-- End 2nd Row -->
 
                                             <div class="row"> <!-- 5TH Row -->
+                                                <div class="col-md-4">
 
+                                                    <div class="form-group">
+                                                        <h5>نوع العامل <span class="text-danger">*</span></h5>
+                                                        <div class="controls">
+                                                            <select id="user_type" class="custom-select" name="user_type" required>
+                                                                <option value="Teacher"  {{ ($editData->user_type == 'Employee')? "selected":"" }}>أستاذ</option>
+                                                                <option value="Direction" {{ ($editData->user_type == 'Direction')? "selected":"" }}>إدارة</option>
+                                                                <option value="Student" {{ ($editData->user_type == 'Student')? "selected":"" }}>تلميذ</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div> <!-- End Col md 4 -->
                                                 <div class="col-md-4">
 
                                                     <div class="form-group">
@@ -138,7 +149,7 @@
                                                     <div class="form-group">
                                                         <div class="controls">
                                                             <img id="showImage"
-                                                                 src="{{ (!empty($editData['image']))? url('upload/student_images/'.$editData['image']):url('upload/no_image.jpg') }}"
+                                                                 src="{{ (!empty($editData['profile_photo_path']))? url($editData['profile_photo_path']):url('upload/no_image.jpg') }}"
                                                                  style="width: 100px; width: 100px; border: 1px solid #000000;">
 
                                                         </div>
@@ -153,8 +164,9 @@
                                             <div class="text-xs-left">
                                                 <input type="submit" class="btn btn-rounded btn-info mb-5"
                                                        value="تعديل">
-                                                <a href="{{ url()->previous() }}" class="btn btn-rounded btn-warning mb-5"
-                                                   >عودة</a>
+                                                <a href="{{ url()->previous() }}"
+                                                   class="btn btn-rounded btn-warning mb-5"
+                                                >عودة</a>
                                             </div>
                                 </form>
 

@@ -30,6 +30,10 @@ class StudentGroup extends Model
         return $this->hasMany(Day::class);
     }
 
+    public function year(){
+        return$this->belongsTo(StudentYear::class,'year_id','id');
+    }
+
 
 
 }

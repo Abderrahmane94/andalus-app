@@ -9,7 +9,6 @@ use App\Models\SchoolSubject;
 
 class SchoolSubjectController extends Controller
 {
-
     protected $setupService;
 
     public function __construct(SetupService $setupService)
@@ -21,9 +20,7 @@ class SchoolSubjectController extends Controller
     {
         $data['allData'] = $this->setupService->getAllSubjects();
         return view('backend.setup.school_subject.view-subject', $data);
-
     }
-
 
     public function SubjectAdd()
     {
@@ -39,16 +36,13 @@ class SchoolSubjectController extends Controller
         );
 
         return redirect()->route('school.subject.view')->with($notification);
-
     }
-
 
     public function SubjectEdit($id)
     {
         $editData = $this->setupService->findSubjectById($id);
         return view('backend.setup.school_subject.edit-subject', compact('editData'));
     }
-
 
     public function SubjectUpdate(Request $request, $id)
     {
@@ -62,11 +56,9 @@ class SchoolSubjectController extends Controller
         return redirect()->route('school.subject.view')->with($notification);
     }
 
-
     public function SubjectDelete($id)
     {
-        $user = $this->setupService->findSubjectById($id);
-        $user->delete();
+        $this->setupService->deleteSubjectById($id);
 
         $notification = array(
             'message' => 'تم إزالة المادة الدراسية',
@@ -74,8 +66,5 @@ class SchoolSubjectController extends Controller
         );
 
         return redirect()->route('school.subject.view')->with($notification);
-
     }
-
-
 }

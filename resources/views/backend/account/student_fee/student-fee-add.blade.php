@@ -32,10 +32,9 @@
                                 </form>
                             </div>
                         </div>
-                    </div> <!-- // end first col 12 -->
-
+                    </div>
+                    <!-- // end first col 12 -->
                     <div class="col-12">
-
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"> قائمة رسومات الطالب
@@ -52,21 +51,23 @@
                                             <th>الرمز</th>
                                             <th>الفوج الدراسي</th>
                                             <th>نوع الرسوم</th>
+                                            <th>تفصيل الرسوم</th>
                                             <th>المبلغ الواجب دفعه</th>
                                             <th>المبلغ المدفوع</th>
                                             <th>المبلغ المتبقي</th>
-                                            <th>التاريخ</th>
+                                            <th>تاريخ الدفع</th>
 
                                         </tr>
                                         </thead>
                                         <tbody>
                                         @foreach($allData as $key => $value )
-                                            <tr>
+                                            <tr style="@if ($value['amount_to_be_paid']-$value['amount_paid'] > 0) color: red @endif">
                                                 <td>{{ $key+1 }}</td>
                                                 <td> {{ $value['student']['last_name'] }} {{ $value['student']['first_name'] }}</td>
                                                 <td> {{ $value['student']['id_no'] }}</td>
                                                 <td> @if ($value['group_id'] != null) {{$value['group']['name'] }} @endif</td>
                                                 <td> {{ $value['fee_category']['name']}}</td>
+                                                @if($value['fee_category_id'] == 2 ) <td> من الحصة {{$value['num_lesson_start']}}  إلى الحصة {{$value['num_lesson_end']}} </td> @else <td>-</td> @endif
                                                 <td> {{ $value['amount_to_be_paid']}}</td>
                                                 <td> {{ $value['amount_paid']}}</td>
                                                 <td> {{ $value['amount_to_be_paid']-$value['amount_paid']}}</td>

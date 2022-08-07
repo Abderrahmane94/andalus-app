@@ -42,8 +42,9 @@
                     <div class="form-group position-relative error-l-50">
                         <label>نوع المستخدم</label>
                         <select id="user_type" class="custom-select" name="user_type" required>
-                            <option value="Employee">أستاذ</option>
+                            <option value="Teacher">أستاذ</option>
                             <option value="Direction">إدارة</option>
+                            <option value="Student">تلميذ</option>
                         </select>
                     </div>
 

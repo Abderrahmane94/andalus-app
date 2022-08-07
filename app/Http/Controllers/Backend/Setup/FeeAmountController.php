@@ -25,14 +25,12 @@ class FeeAmountController extends Controller
         return view('backend.setup.fee_amount.view-fee-amount', $data);
     }
 
-
     public function AddFeeAmount()
     {
         $data['fee_categories'] = $this->setupService->getAllFeeCategory();
         $data['classes'] = $this->setupService->getAllStudentClasses();
         return view('backend.setup.fee_amount.add-fee-amount', $data);
     }
-
 
     public function StoreFeeAmount(Request $request)
     {
@@ -44,9 +42,7 @@ class FeeAmountController extends Controller
         );
 
         return redirect()->route('fee.amount.view')->with($notification);
-
     }
-
 
     public function EditFeeAmount($fee_category_id)
     {
@@ -54,16 +50,14 @@ class FeeAmountController extends Controller
         $data['fee_categories'] = $this->setupService->getAllFeeCategory();
         $data['classes'] = $this->setupService->getAllStudentClasses();
         return view('backend.setup.fee_amount.edit-fee-amount', $data);
-
     }
-
 
     public function UpdateFeeAmount(Request $request, $fee_category_id)
     {
         if ($request->class_id == NULL) {
 
             $notification = array(
-                'message' => 'Sorry You do not select any class amount',
+                'message' => 'يرجى اختيار فئة !',
                 'alert-type' => 'error'
             );
 
@@ -81,15 +75,10 @@ class FeeAmountController extends Controller
         return redirect()->route('fee.amount.view')->with($notification);
     } // end Method
 
-
     public function DetailsFeeAmount($fee_category_id)
     {
         $data['detailsData'] = $this->setupService->findFeeCategoryAmountByFeeCategory($fee_category_id);
 
         return view('backend.setup.fee_amount.details-fee-amount', $data);
-
-
     }
-
-
 }

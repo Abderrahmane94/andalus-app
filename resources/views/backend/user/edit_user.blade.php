@@ -15,7 +15,8 @@
 
                     <div class="form-group position-relative error-l-50">
                         <label>الاسم</label><span class="text-danger">*</span>
-                        <input type="text" name="first_name" class="form-control" value="{{ $editData->first_name }}" required="">
+                        <input type="text" name="first_name" class="form-control" value="{{ $editData->first_name }}"
+                               required="">
                         <div class="invalid-tooltip">
                             {{__('يجب إدخال الاسم')}}
                         </div>
@@ -23,7 +24,8 @@
                     </div>
                     <div class="form-group position-relative error-l-50">
                         <label>اللقب</label><span class="text-danger">*</span>
-                        <input type="text" name="last_name" class="form-control" value="{{ $editData->last_name }}" required="">
+                        <input type="text" name="last_name" class="form-control" value="{{ $editData->last_name }}"
+                               required="">
                         <div class="invalid-tooltip">
                             {{__('يجب إدخال اللقب')}}
                         </div>
@@ -32,13 +34,23 @@
 
                     <div class="form-group position-relative error-l-50">
                         <label>البريد الإلكتروني</label><span class="text-danger">*</span>
-                        <input type="email" name="email" class="form-control" value=" {{ $editData->email }}" required="">
+                        <input type="email" name="email" class="form-control" value=" {{ $editData->email }}"
+                               required="">
                         @error('email')
                         <div class="alert alert-danger">{{ $message }}</div>
                         @enderror
                         <div class="invalid-tooltip">
                             {{__('يجب إدخال البريد الإلكتروني')}}
                         </div>
+                    </div>
+
+                    <div class="form-group position-relative error-l-50">
+                        <label>نوع المستخدم</label>
+                        <select id="user_type" class="custom-select" name="user_type" required>
+                            <option value="Teacher"  {{ ($editData->user_type == 'Employee')? "selected":"" }}>أستاذ</option>
+                            <option value="Direction" {{ ($editData->user_type == 'Direction')? "selected":"" }}>إدارة</option>
+                            <option value="Student" {{ ($editData->user_type == 'Student')? "selected":"" }}>تلميذ</option>
+                        </select>
                     </div>
 
                     <div class="form-group position-relative error-l-50">

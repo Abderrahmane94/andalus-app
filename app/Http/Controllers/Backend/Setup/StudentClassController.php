@@ -3,86 +3,71 @@
 namespace App\Http\Controllers\Backend\Setup;
 
 use App\Http\Controllers\Controller;
+use App\Services\SetupService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use App\Models\StudentClass;
 
 class StudentClassController extends Controller
 {
-    public function ViewStudent(){
-    	$data['allData'] = StudentClass::all();
-    	return view('backend.setup.student_class.view-class',$data);
+    protected $setupService;
 
+    public function __construct(SetupService $setupService)
+    {
+        $this->setupService = $setupService;
     }
 
-
-    public function StudentClassAdd(){
-    	return view('backend.setup.student_class.add-class');
+    public function ViewStudent()
+    {
+        $data['allData'] = $this->setupService->getAllStudentClasses();
+        return view('backend.setup.student_class.view-class', $data);
     }
 
-
-    public function StudentClassStore(Request $request){
-
-
-    	$data = new StudentClass();
-    	$data->name = $request->name;
-        $data->level = $request->level;
-    	$data->save();
-
-    	$notification = array(
-    		'message' => 'تم إضافة الفئة بنجاح',
-    		'alert-type' => 'success'
-    	);
-
-    	return redirect()->route('student.class.view')->with($notification);
-
+    public function StudentClassAdd()
+    {
+        return view('backend.setup.student_class.add-class');
     }
 
+    public function StudentClassStore(Request $request)
+    {
+        $this->setupService->addStudentClass($request->name, $request->level);
 
+        $notification = array(
+            'message' => 'تم إضافة الفئة بنجاح',
+            'alert-type' => 'success'
+        );
 
-    public function StudentClassEdit($id){
-    	$editData = StudentClass::find($id);
-
-    	return view('backend.setup.student_class.edit-class',compact('editData'));
-
+        return redirect()->route('student.class.view')->with($notification);
     }
 
+    public function StudentClassEdit($id)
+    {
+        $editData = $this->setupService->getStudentClassById($id);
 
-    public function StudentClassUpdate(Request $request,$id){
-
-		$data = StudentClass::find($id);
-
-        $validatedData = $request->validate([
-    		'name' => 'required|unique:student_classes,name,'.$data->id
-
-    	]);
-
-
-    	$data->name = $request->name;
-    	$data->level = $request->level;
-    	$data->save();
-
-    	$notification = array(
-    		'message' => 'تم تعديل فئة التلاميذ بنجاح',
-    		'alert-type' => 'success'
-    	);
-
-    	return redirect()->route('student.class.view')->with($notification);
+        return view('backend.setup.student_class.edit-class', compact('editData'));
     }
 
+    public function StudentClassUpdate(Request $request, $id)
+    {
+        $this->setupService->editStudentClass($id, $request->name, $request->level);
 
-    public function StudentClassDelete($id){
-    	$user = StudentClass::find($id);
-    	$user->delete();
+        $notification = array(
+            'message' => 'تم تعديل فئة التلاميذ بنجاح',
+            'alert-type' => 'success'
+        );
 
-    	$notification = array(
-    		'message' => 'تم إزالة الفئة بنجاح',
-    		'alert-type' => 'info'
-    	);
-
-    	return redirect()->route('student.class.view')->with($notification);
-
+        return redirect()->route('student.class.view')->with($notification);
     }
 
+    public function StudentClassDelete($id)
+    {
+        $this->setupService->deleteStudentClassById($id);
 
+        $notification = array(
+            'message' => 'تم إزالة الفئة بنجاح',
+            'alert-type' => 'info'
+        );
 
+        return redirect()->route('student.class.view')->with($notification);
+    }
 }

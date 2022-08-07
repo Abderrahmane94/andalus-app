@@ -3,162 +3,92 @@
 namespace App\Http\Controllers\Backend\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\AccountStudentFee;
-use App\Models\FeeCategoryAmount;
-use App\Models\LigneAccountStudentFee;
-use App\Models\SchoolSubject;
-use Illuminate\Http\Request;
 use App\Models\AssignStudent;
-use App\Models\User;
 use App\Models\DiscountStudent;
-
-use App\Models\StudentYear;
+use App\Models\SchoolSubject;
 use App\Models\StudentClass;
 use App\Models\StudentGroup;
 use App\Models\StudentShift;
+use App\Models\StudentYear;
+use App\Models\User;
+use App\Services\SetupService;
+use App\Services\StudentService;
+use App\Services\UserService;
 use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use PDF;
 
 
 class StudentRegController extends Controller
 {
-    public function StudentRegView()
+    protected $setupService;
+    protected $userService;
+    protected $studentService;
+
+    public function __construct(SetupService $setupService, UserService $userService, StudentService $studentService)
     {
-        $data['years'] = StudentYear::all();
-        $data['classes'] = StudentClass::all();
-        $data['allData'] = AssignStudent::where('group_id','=',null)->get();
-
-        //$data['year_id'] = StudentYear::orderBy('id','desc')->first()->id;
-        //$data['class_id'] = StudentClass::orderBy('id','desc')->first()->id;
-        // dd($data['class_id']);
-        //$data['allData'] = AssignStudent::where('year_id',$data['year_id'])->where('class_id',$data['class_id'])->get();
-        return view('backend.student.student_registration.student-view', $data);
-
+        $this->setupService = $setupService;
+        $this->userService = $userService;
+        $this->studentService = $studentService;
     }
 
+    public function StudentRegView()
+    {
+        $data['years'] = $this->setupService->getAllYears();
+        $data['classes'] = $this->setupService->getAllStudentClasses();
+        $data['allData'] = $this->studentService->getAssignStudentByGroupId(null);
+        $data['allStudent'] = $this->userService->findUserByType('Student');
+
+        return view('backend.student.student_registration.student-view', $data);
+    }
 
     public function StudentClassYearWise(Request $request)
     {
-        $data['years'] = StudentYear::all();
-        $data['classes'] = StudentClass::all();
-
+        $data['years'] = $this->setupService->getAllYears();
+        $data['classes'] = $this->setupService->getAllStudentClasses();
         $data['year_id'] = $request->year_id;
         $data['class_id'] = $request->class_id;
-
-        $data['allData'] = AssignStudent::where('year_id', $request->year_id)->where('class_id', $request->class_id)->get();
+        $data['allData'] = $this->studentService->getAssignStudentByYearByClass($request);
         return view('backend.student.student_registration.student-view', $data);
-
     }
 
+    public function StudentRegGroupsDelete($student_id, $group_id)
+    {
+        $this->setupService->deleteStudentFromGroup($student_id, $group_id);
+
+        $notification = array(
+            'message' => 'تم حذف التلميذ من الصف بنجاح',
+            'alert-type' => 'success'
+        );
+
+        return redirect()->route('student.registration.groups.details', $student_id)->with($notification);
+    }
 
     public function StudentRegAdd()
     {
-        $data['years'] = StudentYear::all();
-        $data['classes'] = StudentClass::all();
-        $data['subjects'] = SchoolSubject::all();
-        $data['groups'] = StudentGroup::all();
+        $data['years'] = $this->setupService->getAllYears();
+        $data['classes'] = $this->setupService->getAllStudentClasses();
+        $data['subjects'] = $this->setupService->getAllSubjects();
+        $data['groups'] = $this->setupService->getAllStudentGroup();
         return view('backend.student.student_registration.student-add', $data);
     }
 
+    public function StudentRegGroupsStore(Request $request, $student_id)
+    {
+        $this->setupService->addGroupsToStudent($request, $student_id);
+
+        $notification = array(
+            'message' => 'تمت العملية بنجاح',
+            'alert-type' => 'success'
+        );
+
+        return redirect()->route('student.registration.groups.details', $student_id)->with($notification);
+    }
 
     public function StudentRegStore(Request $request)
     {
-        DB::transaction(function () use ($request) {
-            $checkYear = StudentYear::find($request->year_id)->name;
-            $student = User::where('usertype', 'Student')->orderBy('id', 'DESC')->first();
-            // create student code
-            if ($student == null) {
-                $firstReg = 0;
-                $studentId = $firstReg + 1;
-                if ($studentId < 10) {
-                    $id_no = '000' . $studentId;
-                } elseif ($studentId < 100) {
-                    $id_no = '00' . $studentId;
-                } elseif ($studentId < 1000) {
-                    $id_no = '0' . $studentId;
-                }
-            } else {
-                $student = User::where('usertype', 'Student')->orderBy('id', 'DESC')->first()->id;
-                $studentId = $student + 1;
-                if ($studentId < 10) {
-                    $id_no = '000' . $studentId;
-                } elseif ($studentId < 100) {
-                    $id_no = '00' . $studentId;
-                } elseif ($studentId < 1000) {
-                    $id_no = '0' . $studentId;
-                }
-
-            } // end else
-            $final_id_no = $checkYear ."/". $id_no;
-
-            $user = new User();
-            $user->id_no = $final_id_no;
-            $user->password = bcrypt('password');
-            $user->usertype = 'Student';
-            $user->last_name = $request->last_name;
-            $user->first_name = $request->first_name;
-            $user->mother_name = $request->mother_name;
-            $user->father_name = $request->father_name;
-            $user->mobile = $request->mobile;
-            $user->address = $request->address;
-            $user->gender = $request->gender;
-            $user->dob = date('Y-m-d', strtotime($request->dob));
-
-            if ($request->file('image')) {
-                $file = $request->file('image');
-                $filename = date('YmdHi') . $file->getClientOriginalName();
-                $file->move(public_path('upload/student_images'), $filename);
-                $user['image'] = $filename;
-            }
-            $user->save();
-
-            // assign student to a class
-            $assign_student = new AssignStudent();
-            $assign_student->student_id = $user->id;
-            $assign_student->year_id = $request->year_id;
-            $assign_student->class_id = $request->class_id;
-            $assign_student->save();
-
-            // assign student to groups
-            if ($request->group_id != NULL) {
-                $countGroups = count($request->group_id);
-                for ($i=0; $i <$countGroups ; $i++) {
-                    $assign_student = new AssignStudent();
-                    $assign_student->student_id = $user->id;
-                    $assign_student->year_id = $request->year_id;
-                    $assign_student->class_id = $request->class_id;
-                    $assign_student->group_id = $request->group_id[$i];
-                    $assign_student->save();
-
-                } // End For Loop
-            }// End If Condition
-
-            /// registration fee
-            $account_reg_student = new AccountStudentFee();
-            $account_reg_student->student_id = $user->id;
-            $account_reg_student->fee_category_id = 1;
-            $amount_to_be_paid = FeeCategoryAmount::where('fee_category_id',1)
-                                            ->where('class_id',$request->class_id)
-                                            ->pluck('amount');
-            $account_reg_student->amount_paid = 0;
-            $account_reg_student->amount_to_be_paid = $amount_to_be_paid->get(0);
-            $account_reg_student->save();
-
-            $ligne_account_reg_student = new LigneAccountStudentFee();
-            $ligne_account_reg_student->account_student_id = $account_reg_student->id;
-            $ligne_account_reg_student->amount = $account_reg_student->amount_to_be_paid;
-            $ligne_account_reg_student->ligne_date = $account_reg_student->created_at;
-            $ligne_account_reg_student->save();
-
-
-           /* $discount_student = new DiscountStudent();
-            $discount_student->assign_student_id = $assign_student->id;
-            $discount_student->fee_category_id = '1';
-            $discount_student->discount = $request->discount;
-            $discount_student->save();*/
-
-        });
-
+        $this->studentService->addStudent($request);
 
         $notification = array(
             'message' => 'تم إضافة التلميذ بنجاح',
@@ -166,27 +96,21 @@ class StudentRegController extends Controller
         );
 
         return redirect()->route('student.registration.view')->with($notification);
-
-    } // End Method
-
+    }
 
     public function StudentRegEdit($student_id)
     {
-        $data['years'] = StudentYear::all();
-        $data['classes'] = StudentClass::all();
-        $data['subjects'] = SchoolSubject::all();
+        $data['years'] = $this->setupService->getAllYears();
+        $data['classes'] = $this->setupService->getAllStudentClasses();
+        $data['subjects'] = $this->setupService->getAllSubjects();
+        $data['editData'] = $this->studentService->getAssignStudentByStudentId($student_id)->first();
 
-        //$data['editData'] = AssignStudent::with(['student', 'discount'])->where('student_id', $student_id)->first();
-        // dd($data['editData']->toArray());
         return view('backend.student.student_registration.student-edit', $data);
-
     }
-
 
     public function StudentRegUpdate(Request $request, $student_id)
     {
         DB::transaction(function () use ($request, $student_id) {
-
 
             $user = User::where('id', $student_id)->first();
             $user->name = $request->name;
@@ -222,7 +146,6 @@ class StudentRegController extends Controller
 
         });
 
-
         $notification = array(
             'message' => 'Student Registration Updated Successfully',
             'alert-type' => 'success'
@@ -230,10 +153,9 @@ class StudentRegController extends Controller
 
         return redirect()->route('student.registration.view')->with($notification);
 
-    } // End Method
+    }
 
-
-    public function StudentRegPromotion($student_id)
+    public function StudentRegPromotion($student_id) ///////// for delete
     {
         $data['years'] = StudentYear::all();
         $data['classes'] = StudentClass::all();
@@ -243,14 +165,11 @@ class StudentRegController extends Controller
         $data['editData'] = AssignStudent::with(['student', 'discount'])->where('student_id', $student_id)->first();
 
         return view('backend.student.student_reg.student-promotion', $data);
-
     }
 
-
-    public function StudentUpdatePromotion(Request $request, $student_id)
+    public function StudentUpdatePromotion(Request $request, $student_id) /////////// for delete
     {
         DB::transaction(function () use ($request, $student_id) {
-
 
             $user = User::where('id', $student_id)->first();
             $user->name = $request->name;
@@ -299,7 +218,6 @@ class StudentRegController extends Controller
 
     } // End Method
 
-
     public function StudentRegDetails($student_id)
     {
         $data['details'] = AssignStudent::with(['student', 'discount'])->where('student_id', $student_id)->first();
@@ -310,13 +228,27 @@ class StudentRegController extends Controller
 
     }
 
-    public function StudentRegGroupsDetails($student_id){
-        $data['detailsData'] = AssignStudent::where('student_id',$student_id)->where('group_id','!=',null)->get();
-        $data['detail'] = AssignStudent::where('student_id',$student_id)->where('group_id','!=',null)->first();
-        return view('backend.student.student_registration.details-student-groups',$data);
-
-
+    public function StudentRegGroupsDetails($student_id)
+    {
+        $data['StudentDetailGroups'] = $this->studentService->getAssignStudentByStudentId($student_id);
+        $data['detailGroups'] = $data['StudentDetailGroups']->where('group_id', '!=', null);
+        $studentGroup = $data['StudentDetailGroups']->pluck('class_id')->first();
+        $studentGroups = $data['StudentDetailGroups']->pluck('group_id');
+        $data['detailStudent'] = $data['StudentDetailGroups']->where('group_id', null)->first();
+        $data['groups'] = StudentGroup::where('class_id', $studentGroup)->get()->wherenotin('id', $studentGroups);
+        $data['studentId'] = $student_id;
+        return view('backend.student.student_registration.details-student-groups', $data);
     }
 
+    public function StudentRegDelete($student_id)
+    {
+        $this->studentService->deleteStudent($student_id);
 
+        $notification = array(
+            'message' => 'تم إزالةالتلميذ بنجاح',
+            'alert_type' => 'info'
+        );
+
+        return redirect()->route('student.registration.view')->with($notification);
+    }
 }

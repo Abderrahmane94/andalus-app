@@ -56,7 +56,7 @@ class User extends Authenticatable
      * @var array
      */
     public $appends = [
-        'uid', 
+        'uid',
     ];
 
     public function getUidAttribute()

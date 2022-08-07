@@ -7,44 +7,46 @@ use App\Models\SchoolClasses;
 use App\Models\SchoolSubject;
 use App\Models\StudentClass;
 use App\Models\User;
+use App\Services\SetupService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use App\Models\StudentGroup;
 
 class StudentGroupController extends Controller
 {
+    protected $setupService;
+    protected $userService;
+
+    public function __construct(SetupService $setupService, UserService $userService)
+    {
+        $this->setupService = $setupService;
+        $this->userService = $userService;
+    }
+
     public function ViewGroup()
     {
-        $data['allData'] = StudentGroup::all();
+        $data['allData'] = $this->setupService->getAllStudentGroup();
         return view('backend.setup.group.view-group', $data);
+    }
 
+    public function ViewGroupDetails($id_group)
+    {
+        $data['students'] = $this->setupService->findStudentByGroupId($id_group);
+        return view('backend.setup.group.view-detail',$data);
     }
 
     public function StudentGroupAdd()
     {
-        $data['subjects'] = SchoolSubject::all();
-        $data['teachers'] = User::where('user_type','Employee')->get();
-        $data['classes'] = StudentClass::all();
-        $data['rooms'] = SchoolClasses::all();
-        return view('backend.setup.group.add-group',$data);
+        $data['subjects'] = $this->setupService->getAllSubjects();
+        $data['teachers'] = $this->userService->findUserByType('Teacher');
+        $data['classes'] = $this->setupService->getAllStudentClasses();
+        $data['rooms'] = $this->setupService->getAllClasses();
+        return view('backend.setup.group.add-group', $data);
     }
-
 
     public function StudentGroupStore(Request $request)
     {
-        $data = new StudentGroup();
-        $data->name       = $request->name;
-        $data->subject_id = $request->subject;
-        $data->teacher_id = $request->teacher;
-        $data->classes_id = $request->room;
-        $data->class_id   = $request->class;
-        $data->group_type = $request->group_type;
-        $data->start_time = $request->start_time;
-        $data->end_time = $request->end_time;
-        $data->day = $request->day;
-        $data->nb_lessons = 0;
-        $data->fee_type_id = $request->fee_type_id;
-
-        $data->save();
+        $this->setupService->addStudentGroup($request);
 
         $notification = array(
             'message' => 'تم إضافة الصف بنجاح',
@@ -52,31 +54,21 @@ class StudentGroupController extends Controller
         );
 
         return redirect()->route('student.group.view')->with($notification);
-
     }
-
 
     public function StudentGroupEdit($id)
     {
-        $editData = StudentGroup::find($id);
-        return view('backend.setup.group.edit-group', compact('editData'));
-
+        $editData['group'] = $this->setupService->findStudentGroupById($id);
+        $editData['subjects'] = $this->setupService->getAllSubjects();
+        $editData['teachers'] = $this->userService->findUserByType('Employee');
+        $editData['classes'] = $this->setupService->getAllStudentClasses();
+        $editData['rooms'] = $this->setupService->getAllClasses();
+        return view('backend.setup.group.edit-group', $editData);
     }
-
 
     public function StudentGroupUpdate(Request $request, $id)
     {
-
-        $data = StudentGroup::find($id);
-
-        $validatedData = $request->validate([
-            'name' => 'required|unique:student_groups,name,' . $data->id
-
-        ]);
-
-
-        $data->name = $request->name;
-        $data->save();
+        $this->setupService->editStudentGroup($request, $id);
 
         $notification = array(
             'message' => 'تم تعديل الصف بنجاح',
@@ -86,11 +78,9 @@ class StudentGroupController extends Controller
         return redirect()->route('student.group.view')->with($notification);
     }
 
-
     public function StudentGroupDelete($id)
     {
-        $group = StudentGroup::find($id);
-        $group ->delete();
+        $this->setupService->deleteStudentGroupById($id);
 
         $notification = array(
             'message' => 'تم إزالة الصف بنجاح',
@@ -98,8 +88,36 @@ class StudentGroupController extends Controller
         );
 
         return redirect()->route('student.group.view')->with($notification);
-
     }
 
+    public function StudentGroupUpdateStatus($id_group)
+    {
+        $group = $this->setupService->updateStatusStudentGroupById($id_group);
 
+        if ($group)
+            $notification = array(
+                'message' => 'تم تفعيل الصف بنجاح',
+                'alert-type' => 'info'
+            );
+
+        else
+            $notification = array(
+                'message' => 'تم تعطيل الصف بنجاح',
+                'alert-type' => 'info'
+            );
+
+        return redirect()->route('student.group.view')->with($notification);
+    }
+
+    public function RemoveStudentFromGroup($group_id,$student_id)
+    {
+        $this->setupService->removeStudentFromGroup($group_id,$student_id);
+
+        $notification = array(
+            'message' => 'تم حذف التلميذ من الصف بنجاح',
+            'alert-type' => 'info'
+        );
+
+        return redirect()->route('student.group.view')->with($notification);
+    }
 }

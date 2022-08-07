@@ -54,7 +54,7 @@ class UserController extends Controller
 
     public function UserUpdate(Request $request, $id)
     {
-        $this->userService->editUser($id, $request->first_name, $request->last_name, $request->email, $request->file('image'));
+        $this->userService->editUser($id, $request->first_name, $request->last_name, $request->email, $request->file('image'), $request->user_type);
 
         $notification = array(
             'message' => 'تم تعديل المستخدم بنجاح',

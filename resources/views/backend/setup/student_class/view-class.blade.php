@@ -1,22 +1,21 @@
 @extends('admin.adminBase')
 @section('admin')
 
-
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
                 <h1>فئات التلاميذ</h1>
 
-{{--                <div class="top-right-button-container"> data already exist in the database
+                {{--                <div class="top-right-button-container"> data already exist in the database
 
-                    <div class="btn-group">
-                        <div class="row">
-                            <a href="{{ route('student.class.add') }}" style="float:left;"
-                               class="btn btn-success btn-lg mr-2">إضافة فئة</a>
-                        </div>
+                                    <div class="btn-group">
+                                        <div class="row">
+                                            <a href="{{ route('student.class.add') }}" style="float:left;"
+                                               class="btn btn-success btn-lg mr-2">إضافة فئة</a>
+                                        </div>
 
-                    </div>
-                </div>--}}
+                                    </div>
+                                </div>--}}
 
 
                 <div class="mb-2">
@@ -60,7 +59,7 @@
                         <th>المستوى</th>
                         <th>السنة</th>
                         <th>الشعبة</th>
-                       {{-- <th>عمليات</th>--}}
+                        {{-- <th>عمليات</th>--}}
                     </tr>
                     </thead>
                     <tbody>
@@ -79,18 +78,18 @@
                             <td>
                                 <p class="text-muted">{{$student->section}}</p>
                             </td>
-{{--                            <td>
-                                <a title="تعديل" href="{{ route('student.class.edit',$student->id) }}"
-                                   class="btn btn-outline-secondary icon-button">
-                                    <i class="fa fa-pencil-square-o">
-                                    </i>
-                                </a>
-                                <a title="حذف" href="{{ route('student.class.delete',$student->id) }}"
-                                   class="btn btn-outline-danger icon-button" id="delete">
-                                    <i class="simple-icon-trash">
-                                    </i>
-                                </a>
-                            </td>--}}
+                            {{--                            <td>
+                                                            <a title="تعديل" href="{{ route('student.class.edit',$student->id) }}"
+                                                               class="btn btn-outline-secondary icon-button">
+                                                                <i class="fa fa-pencil-square-o">
+                                                                </i>
+                                                            </a>
+                                                            <a title="حذف" href="{{ route('student.class.delete',$student->id) }}"
+                                                               class="btn btn-outline-danger icon-button" id="delete">
+                                                                <i class="simple-icon-trash">
+                                                                </i>
+                                                            </a>
+                                                        </td>--}}
                         </tr>
                     @endforeach
 
@@ -99,9 +98,5 @@
             </div>
         </div>
     </div>
-
-
-
-
 
 @endsection

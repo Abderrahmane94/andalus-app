@@ -23,7 +23,6 @@ class SchoolClassesController extends Controller
 
     }
 
-
     public function ClassesAdd()
     {
         return view('backend.setup.school_classes.add-classes');
@@ -39,21 +38,16 @@ class SchoolClassesController extends Controller
         );
 
         return redirect()->route('school.classes.view')->with($notification);
-
     }
-
 
     public function ClassesEdit($id)
     {
         $editData = $this->setupService->findClassesById($id);
         return view('backend.setup.school_classes.edit-classes', compact('editData'));
-
     }
-
 
     public function ClassesUpdate(Request $request, $id)
     {
-
         $this->setupService->editClasses($id, $request->name, $request->nb_student, $request->surface);
 
         $notification = array(
@@ -64,11 +58,9 @@ class SchoolClassesController extends Controller
         return redirect()->route('school.classes.view')->with($notification);
     }
 
-
     public function ClassesDelete($id)
     {
-        $classe = $this->setupService->findClassesById($id);
-        $classe->delete();
+        $this->setupService->deleteClassesById($id);
 
         $notification = array(
             'message' => 'تم إزالة القاعة بنجاح',
@@ -76,6 +68,5 @@ class SchoolClassesController extends Controller
         );
 
         return redirect()->route('school.classes.view')->with($notification);
-
     }
 }

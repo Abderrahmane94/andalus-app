@@ -90,10 +90,12 @@
                                 <p class="mb-0 text-muted text-small w-15 w-sm-100">{{$user->email}}</p>
                                 <p class="mb-0 text-muted text-small w-15 w-sm-100">{{$user->created_at}}</p>
                                 <div class="w-15 w-sm-100">
-                                    @if($user->user_type == 'Employee')
+                                    @if($user->user_type == 'Teacher')
                                         <span class="badge badge-pill badge-primary">أستاذ</span>
-                                    @elseif($user->user_type == 'إدارة')
-                                        <span class="badge badge-pill badge-info">إدارة</span>
+                                    @elseif($user->user_type == 'Direction')
+                                        <span class="badge badge-pill badge-warning">إدارة</span>
+                                    @elseif($user->user_type == 'Student')
+                                        <span class="badge badge-pill badge-success">تلميذ</span>
                                     @endif
                                 </div>
                                 <div>

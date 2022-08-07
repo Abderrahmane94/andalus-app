@@ -24,7 +24,7 @@
                         <i class="simple-icon-graduation"></i> إدارة التلاميذ
                     </a>
                 </li>
-                <li class="{{ ($prefix =='/setups')?'active':'' }}">
+                <li class="{{ ($prefix =='/employees')?'active':'' }}">
                     <a href="#employee">
                         <i class="simple-icon-people"></i> إدارة العمال
                     </a>

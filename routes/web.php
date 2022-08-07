@@ -173,6 +173,10 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('/group/view', [StudentGroupController::class, 'ViewGroup'])->name('student.group.view');
 
+        Route::get('/group/detail/{id}', [StudentGroupController::class, 'ViewGroupDetails'])->name('student.group.detail');
+
+        Route::get('/group/remove/{group_id}/{student_id}', [StudentGroupController::class, 'RemoveStudentFromGroup'])->name('student.group.detail.delete');
+
         Route::get('/group/add', [StudentGroupController::class, 'StudentGroupAdd'])->name('student.group.add');
 
         Route::post('/group/store', [StudentGroupController::class, 'StudentGroupStore'])->name('store.student.group');
@@ -182,6 +186,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/group/update/{id}', [StudentGroupController::class, 'StudentGroupUpdate'])->name('update.student.group');
 
         Route::get('/group/delete/{id}', [StudentGroupController::class, 'StudentGroupDelete'])->name('student.group.delete');
+
+        Route::get('/group/update_status/{id}', [StudentGroupController::class, 'StudentGroupUpdateStatus'])->name('student.group.update.status');
 
     });
 
@@ -194,6 +200,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/reg/Add', [StudentRegController::class, 'StudentRegAdd'])->name('student.registration.add');
 
         Route::post('/reg/store', [StudentRegController::class, 'StudentRegStore'])->name('store.student.registration');
+
+        Route::post('/reg/groups/store/{student_id}', [StudentRegController::class, 'StudentRegGroupsStore'])->name('store.student.registrationGroups');
 
         Route::get('/year/class/wise', [StudentRegController::class, 'StudentClassYearWise'])->name('student.year.class.wise');
 
@@ -209,6 +217,9 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('/reg/groups/details/{student_id}', [StudentRegController::class, 'StudentRegGroupsDetails'])->name('student.registration.groups.details');
 
+        Route::get('/reg/delete/{id}',[StudentRegController::class, 'StudentRegDelete'])->name('student.registration.delete');
+
+        Route::get('/reg/group/delete/{student_id}/{group_id}',[StudentRegController::class, 'StudentRegGroupsDelete'])->name('student.registration.groups.delete');
 
         // Student Attendance Routes
         Route::get('attendance/student/view', [StudentAttendanceController::class, 'AttendanceStudentView'])->name('student.attendance.view');
@@ -217,16 +228,16 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::post('attendance/student/store', [StudentAttendanceController::class, 'AttendanceStudentStore'])->name('store.student.attendance');
 
-        Route::get('attendance/student/edit/{date}', [StudentAttendanceController::class, 'AttendanceStudentEdit'])->name('student.attendance.edit');
+        Route::post('attendance/student/update/{group_attendance_id}', [StudentAttendanceController::class, 'AttendanceStudentUpdate'])->name('update.student.attendance');
+
+        Route::get('attendance/student/edit/{group_attendance_id}', [StudentAttendanceController::class, 'AttendanceStudentEdit'])->name('student.attendance.edit');
 
         Route::get('attendance/student/details/{date}/{group}', [StudentAttendanceController::class, 'AttendanceStudentDetails'])->name('student.attendance.details');
-
 
         // Registration Fee Routes
         Route::get('/reg/fee/view', [RegistrationFeeController::class, 'RegFeeView'])->name('registration.fee.view');
         Route::get('/reg/fee/classwisedata', [RegistrationFeeController::class, 'RegFeeClassData'])->name('student.registration.fee.classwise.get');
         Route::get('/reg/fee/payslip', [RegistrationFeeController::class, 'RegFeePayslip'])->name('student.registration.fee.payslip');
-
 
         // Monthly Fee Routes
         Route::get('/monthly/fee/view', [MonthlyFeeController::class, 'MonthlyFeeView'])->name('monthly.fee.view');
@@ -234,7 +245,6 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/monthly/fee/classwisedata', [MonthlyFeeController::class, 'MonthlyFeeClassData'])->name('student.monthly.fee.classwise.get');
 
         Route::get('/monthly/fee/payslip', [MonthlyFeeController::class, 'MonthlyFeePayslip'])->name('student.monthly.fee.payslip');
-
     });
 
     /// Account Management Routes
