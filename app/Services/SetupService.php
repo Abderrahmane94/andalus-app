@@ -7,6 +7,7 @@ use App\Models\AssignStudent;
 use App\Models\FeeCategory;
 use App\Models\FeeCategoryAmount;
 use App\Models\GroupAttendance;
+use App\Models\LigneAccountStudentFee;
 use App\Models\SchoolClasses;
 use App\Models\SchoolSubject;
 use App\Models\StudentClass;
@@ -258,6 +259,7 @@ class SetupService
         $data->end_time = $request->end_time;
         $data->day = $request->day;
         $data->nb_lessons = 0;
+        $data->nb_cycle_lesson = $request->nb_cycle_lesson;
         $data->fee_type_id = $request->fee_type_id;
 
         $data->save();
@@ -288,7 +290,7 @@ class SetupService
 
     public function addGroupsToStudent(Request $request, $student_id)
     {
-        DB::transaction(function () use ($request,$student_id) {
+        DB::transaction(function () use ($request, $student_id) {
 
             foreach (array_unique($request->group_id) as $key => $value) {
                 $assignStudent = new AssignStudent();
@@ -299,33 +301,32 @@ class SetupService
                 $last_group_attendance = GroupAttendance::where('group_id',$request->group_id)->get();
                 $last_group_attendance = $last_group_attendance->sortByDesc('num_lesson')->first();
 
-                $group = StudentGroup::find($request->group_id);
+                if (empty($last_group_attendance)) $num_lesson = 0;
+                else $num_lesson = $last_group_attendance->num_lesson;
+
+                $group = StudentGroup::where('id',$request->group_id)->first();
+
                 $fee_amount_group = FeeCategoryAmount::where('fee_category_id', 2)
-                    ->where('class_id', $group->pluck('class_id'))
+                    ->where('class_id', $group->class_id)
                     ->first();
                 $fee_amount = $fee_amount_group->amount;
+                $nb_lesson_cycle = $group->nb_lesson_cycle;
 
-                //dd($last_group_attendance);
-                if (!empty($last_group_attendance)) {
-                    $num_last_lesson = $last_group_attendance->num_lesson;
-                    $account_student_fees = new AccountStudentFee();
-                    $account_student_fees->student_id = $student_id;
-                    $account_student_fees->group_id = $value;
-                    $account_student_fees->fee_category_id = 2;
-                    /// amount = (fee_amount / 4) x (4- (nb_lesson mod(4))
-                    $account_student_fees->amount_to_be_paid = ($fee_amount / 4) * (4 - ($num_last_lesson % 4));
-                    $account_student_fees->num_lesson_start = $num_last_lesson + 1;
-                    $account_student_fees->num_lesson_end = $num_last_lesson + 4;
-                    $account_student_fees->save();
-                } else {
-                    $account_student_fees = new AccountStudentFee();
-                    $account_student_fees->student_id = $student_id;
-                    $account_student_fees->group_id = $value;
-                    $account_student_fees->fee_category_id = 2;
-                    $account_student_fees->amount_to_be_paid = $fee_amount;
-                    $account_student_fees->num_lesson_start = 1;
-                    $account_student_fees->num_lesson_end = 4;
-                    $account_student_fees->save();
+                $account_student_fees = new AccountStudentFee();
+                $account_student_fees->student_id = $student_id;
+                $account_student_fees->group_id = $value;
+                $account_student_fees->fee_category_id = 2;
+                $account_student_fees->amount_to_be_paid = $fee_amount;
+                $account_student_fees->num_lesson_start = $num_lesson + 1;
+                $account_student_fees->num_lesson_end = $num_lesson + 4;
+                $account_student_fees->save();
+
+                for ($i =1; $i <= $nb_lesson_cycle; $i++) {
+                    $ligne_account_student_fee = new LigneAccountStudentFee();
+                    $ligne_account_student_fee->account_student_id = $account_student_fees->id;
+                    $ligne_account_student_fee->amount = $fee_amount / $nb_lesson_cycle;
+                    $ligne_account_student_fee->num_lesson = $num_lesson+$i;
+                    $ligne_account_student_fee->save();
                 }
             }
         });
@@ -364,22 +365,20 @@ class SetupService
 
     public function deleteStudentFromGroup($student_id, $group_id)
     {
-        $last_group_attendance = GroupAttendance::where('group_id',$group_id)->get()->sortByDesc('num_lesson')->first();
+        $last_group_attendance = GroupAttendance::where('group_id', $group_id)->get()->sortByDesc('num_lesson')->first();
         $last_num_lesson = $last_group_attendance->num_lesson;
 
         // delete account student fees lower than last attendance************************** to complete
-        $account_student_fees  = AccountStudentFee::where('student_id',$student_id)->where('group_id',$group_id)
-            ->where('num_lesson_start','<=',$last_num_lesson)->where('fee_status',false)->get();
-
-
+        $account_student_fees = AccountStudentFee::where('student_id', $student_id)->where('group_id', $group_id)
+            ->where('num_lesson_start', '<=', $last_num_lesson)->where('fee_status', false)->get();
 
 
         // delete account student fees upper than last attendance
-        AccountStudentFee::where('student_id',$student_id)->where('group_id',$group_id)
-            ->where('num_lesson_start','>',$last_num_lesson)->where('fee_status',false)->delete();
+        AccountStudentFee::where('student_id', $student_id)->where('group_id', $group_id)
+            ->where('num_lesson_start', '>', $last_num_lesson)->where('fee_status', false)->delete();
 
         // delete assignment of the student to the group
-        AssignStudent::where('student_id',$student_id)->where('group_id',$group_id)->delete();
+        AssignStudent::where('student_id', $student_id)->where('group_id', $group_id)->delete();
 
 
     }

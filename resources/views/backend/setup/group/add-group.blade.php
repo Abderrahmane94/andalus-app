@@ -118,18 +118,20 @@
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                    <h5>ساعة بدء الدرس <span class="text-danger">*</span></h5>
-                                                    <div class="controls">
-                                                        <input style="font-size: 20px;" type="time" id="start_time" name="start_time"
-                                                               required>
-                                                    </div>
+                                                <h5>ساعة بدء الدرس <span class="text-danger">*</span></h5>
+                                                <div class="controls">
+                                                    <input style="font-size: 20px;" type="time" id="start_time"
+                                                           name="start_time"
+                                                           required>
+                                                </div>
                                             </div>
                                         </div> <!-- End Col md 4 -->
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <h5>ساعة انتهاء الدرس <span class="text-danger">*</span></h5>
                                                 <div class="controls">
-                                                    <input style="font-size: 20px;" id="end_time" type="time" name="end_time"
+                                                    <input style="font-size: 20px;" id="end_time" type="time"
+                                                           name="end_time"
                                                            required>
 
                                                 </div>
@@ -139,7 +141,7 @@
                                             <div class="form-group">
                                                 <h5> يوم الدرس <span class="text-danger">*</span></h5>
                                                 <div class="controls">
-                                                    <select name="day"  required
+                                                    <select name="day" required
                                                             class="form-control" multiple>
                                                         <option value="الأحد">الأحد</option>
                                                         <option value="الإثنين">الإثنين</option>
@@ -161,15 +163,23 @@
                                                 <div class="controls">
                                                     <select name="fee_type_id" id="fee_type_id" required=""
                                                             class="form-control">
-                                                        <option value="" selected="" disabled="">اختر
+                                                        <option value="" disabled="">اختر
                                                             النوع...
                                                         </option>
+                                                        <option value="2" selected="">عدد الحصص</option>
                                                         <option value="1">شهري</option>
-                                                        <option value="2">عدد الحصص</option>
                                                     </select>
                                                 </div>
                                             </div>
                                         </div> <!-- End Col md 4 -->
+                                        <div class="col-md-4" id="nb_cycle_lesson">
+                                            <div class="form-group">
+                                                <h5>عدد الحصص <span class="text-danger">*</span></h5>
+                                                <div class="controls">
+                                                    <input type="number" name="nb_cycle_lesson" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
 
                                     </div>
 
@@ -213,6 +223,15 @@
                 }
 
             });
+        });
+
+
+        $('#fee_type_id').on('change', function () {
+            if ($(this).val() === "2") {
+                $("#nb_cycle_lesson").show()
+            } else {
+                $("#nb_cycle_lesson").hide()
+            }
         });
 
 

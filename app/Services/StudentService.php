@@ -24,7 +24,10 @@ class StudentService
             // create student account
             $student = $this->createStudent($request);
             /// registration fee
-            $this->addStudentFeeAmount($student, 1, $request->class_id, 0);
+            $amount_to_be_paid = FeeCategoryAmount::where('fee_category_id', 1)
+                ->where('class_id', $request->class_id)->first();
+
+            $this->addAccountStudentFee($student->id, null, 1, $amount_to_be_paid->amount, null, null, false, false);
 
             /*            // assign student to groups
                         if ($request->group_id != NULL) {
@@ -40,10 +43,10 @@ class StudentService
                         }// End If Condition*/
 
             /* $discount_student = new DiscountStudent();
-             $discount_student->assign_student_id = $assign_student->id;
-             $discount_student->fee_category_id = '1';
-             $discount_student->discount = $request->discount;
-             $discount_student->save();*/
+              $discount_student->assign_student_id = $assign_student->id;
+              $discount_student->fee_category_id = '1';
+              $discount_student->discount = $request->discount;
+              $discount_student->save();*/
 
         });
     }
@@ -112,7 +115,7 @@ class StudentService
         $student->save();
 
         // assign student to a class
-        $this->assignStudentToAClass($student, $request);
+        $this->assignStudentToAClass($student, $request->year_id, $request->class_id);
 
         return $student;
     }
@@ -124,18 +127,18 @@ class StudentService
         return AssignStudent::where('group_id', '=', $Group_id)->get();
     }
 
-    public function assignStudentToAClass(User $student, Request $request): void
+    public function assignStudentToAClass(User $student, $year_id, $class_id): void
     {
         $assign_student = new AssignStudent();
         $assign_student->student_id = $student->id;
-        $assign_student->year_id = $request->year_id;
-        $assign_student->class_id = $request->class_id;
+        $assign_student->year_id = $year_id;
+        $assign_student->class_id = $class_id;
         $assign_student->save();
     }
 
-    public function getAssignStudentByYearByClass(Request $request)
+    public function getAssignStudentByYearByClass($year_id, $class_id)
     {
-        return AssignStudent::where('year_id', $request->year_id)->where('class_id', $request->class_id)->get();
+        return AssignStudent::where('year_id', $year_id)->where('class_id', $class_id)->get();
     }
 
     public function getAssignStudentByStudentId($student_id)
@@ -147,7 +150,7 @@ class StudentService
 
     public function addStudentAttendance(Request $request)
     {
-        $student_group = StudentGroup::find($request->group_id);
+        $student_group = StudentGroup::where('id', $request->group_id)->first();
 
         //// add new group Attendance
         $attend_group = new GroupAttendance();
@@ -163,32 +166,51 @@ class StudentService
         $attend_group->save();
 
         ///// update student group
+        $nb_lesson = $student_group->nb_lessons + 1;
         $student_group->nb_lessons = $student_group->nb_lessons + 1;
         $student_group->save();
 
-        $countstudents = count($request->student_id);
-        for ($i = 0; $i < $countstudents; $i++) {
+        $count_students = count($request->student_id);
+        $attendanceCollection = collect();
+
+        for ($i = 0; $i < $count_students; $i++) {
             $attend_status = 'attend_status' . $i;
             $attend = new StudentAttendance();
             $attend->student_id = $request->student_id[$i];
             $attend->attendance_status = $request->$attend_status;
             $attend->attendance_group_id = $attend_group->id;
             $attend->save();
+            $attendanceCollection->put($attend->student_id, $attend->attendance_status);
 
-            /// account student fee for the next cycle for all students
-            if ($student_group->nb_lessons % 4 == 1 && $student_group->nb_lessons != 1) {
-                $amount_to_be_paid = FeeCategoryAmount::where('fee_category_id', 2)
-                    ->where('class_id', $student_group->class_id)->first();
-                $account_student_fee = new AccountStudentFee();
-                $account_student_fee->student_id = $request->student_id[$i];
-                $account_student_fee->group_id = $request->group_id;
-                $account_student_fee->fee_category_id = 2;
-                $account_student_fee->amount_to_be_paid = $amount_to_be_paid->amount;
-                $account_student_fee->num_lesson_start = $student_group->nb_lessons;
-                $account_student_fee->num_lesson_end = $student_group->nb_lessons + 3;
-                $account_student_fee->save();
-            }
         } // end For Loop
+
+        /// account student fee
+        $account_student_fees = AccountStudentFee::where('group_id', $request->group_id)->get();
+
+        $amount_to_be_paid = FeeCategoryAmount::where('fee_category_id', 2)
+            ->where('class_id', $student_group->class_id)->first();
+
+        foreach ($account_student_fees as $account_student_fee) {
+            if ($account_student_fee->active) {
+                if ($account_student_fee->num_lesson_end == $nb_lesson) {
+                    $num_lesson_start = $nb_lesson + 1;
+                    $num_lesson_end = $nb_lesson + $student_group->nb_lesson_cycle;
+                    // add new account student fee for the new cycle
+                    $this->addAccountStudentFee($account_student_fee->student_id, $account_student_fee->group_id, 2, $amount_to_be_paid->amount, $num_lesson_start, $num_lesson_end, false, false);
+                }
+            } else {
+                if ($attendanceCollection->pull($account_student_fee->student_id) == 'حاضر') {
+                    $account_student_fee->num_lesson_start = $nb_lesson;
+                    $account_student_fee->num_lesson_end   = $nb_lesson + $student_group->nb_lesson_cycle - 1;
+                    $account_student_fee->active = true;
+                    $account_student_fee->save();
+                } else {
+                    $account_student_fee->num_lesson_start = $nb_lesson + 1;
+                    $account_student_fee->num_lesson_end   = $nb_lesson + $student_group->nb_lesson_cycle;
+                    $account_student_fee->save();
+                }
+            }
+        }
     }
 
     public function getStudentAttendances()
@@ -203,19 +225,22 @@ class StudentService
 
     /*------------- Student Fee -------------------*/
 
-    public function addStudentFeeAmount(User $student, int $fee_category, int $class_id, int $group_id): void
+    public function addAccountStudentFee($student_id, $group_id, $fee_category_id, $amount_to_be_paid, $num_lesson_start, $num_lesson_end, $fee_status, $active): void
     {
-        $account_reg_student = new AccountStudentFee();
-        $account_reg_student->student_id = $student->id;
-        $account_reg_student->fee_category_id = $fee_category;
-        $amount_to_be_paid = FeeCategoryAmount::where('fee_category_id', $fee_category)
-            ->where('class_id', $class_id)->first();
-        $account_reg_student->amount_to_be_paid = $amount_to_be_paid->amount;
-        $account_reg_student->save();
+        $accountStudentFee = new AccountStudentFee();
+        $accountStudentFee->student_id = $student_id;
+        $accountStudentFee->group_id = $group_id;
+        $accountStudentFee->fee_category_id = $fee_category_id;
+        $accountStudentFee->amount_to_be_paid = $amount_to_be_paid;
+        $accountStudentFee->num_lesson_start = $num_lesson_start;
+        $accountStudentFee->num_lesson_end = $num_lesson_end;
+        $accountStudentFee->fee_status = $fee_status;
+        $accountStudentFee->active = $active;
+        $accountStudentFee->save();
 
-/*        $ligne_account_reg_student = new LigneAccountStudentFee();
-        $ligne_account_reg_student->account_student_id = $account_reg_student->id;
-        $ligne_account_reg_student->amount = $account_reg_student->amount_to_be_paid;
-        $ligne_account_reg_student->save();*/
+        /*        $ligne_account_reg_student = new LigneAccountStudentFee();
+                $ligne_account_reg_student->account_student_id = $account_reg_student->id;
+                $ligne_account_reg_student->amount = $account_reg_student->amount_to_be_paid;
+                $ligne_account_reg_student->save();*/
     }
 }

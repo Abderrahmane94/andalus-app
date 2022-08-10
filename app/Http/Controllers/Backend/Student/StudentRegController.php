@@ -49,7 +49,7 @@ class StudentRegController extends Controller
         $data['classes'] = $this->setupService->getAllStudentClasses();
         $data['year_id'] = $request->year_id;
         $data['class_id'] = $request->class_id;
-        $data['allData'] = $this->studentService->getAssignStudentByYearByClass($request);
+        $data['allData'] = $this->studentService->getAssignStudentByYearByClass($request->year_id, $request->class_id);
         return view('backend.student.student_registration.student-view', $data);
     }
 

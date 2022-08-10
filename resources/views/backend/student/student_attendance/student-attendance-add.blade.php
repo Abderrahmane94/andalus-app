@@ -12,7 +12,7 @@
                 <!-- Basic Forms -->
                 <div class="box">
                     <div class="box-header with-border">
-                        <h4 class="box-title">إضافة كشف حضور </h4>
+                        <h4 class="box-title">إضافة كشف حضور الحصة <b>{{ $group->nb_lessons + 1 }}</b> </h4>
 
                     </div>
                     <!-- /.box-header -->
