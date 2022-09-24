@@ -1,76 +1,64 @@
 @extends('admin.adminBase')
 @section('admin')
 
-
- <div class="content-wrapper">
-	  <div class="container-full">
-		<!-- Content Header (Page header) -->
-
-
-		<!-- Main content -->
-		<section class="content">
-		  <div class="row">
-
-
-
-			<div class="col-12">
-
-			 <div class="box">
-				<div class="box-header with-border">
-				  <h3 class="box-title"> كشف حضور: <strong>{{ $group[0]->name }}</strong> </h3>
-				  <h3 class="box-title"> التاريخ: <strong>{{ date('d / m / Y', strtotime($groupAttendances->date)) }}</strong> </h3>
-
-				</div>
-				<!-- /.box-header -->
-				<div class="box-body">
-					<div class="table-responsive">
-		<table  class="table table-bordered table-striped">
-						<thead>
-			<tr>
-				<th width="5%">الرقم</th>
-				<th>الاسم</th>
-				<th>رقم التسجيل</th>
-				<th>الحالة</th>
-
-
-			</tr>
-		</thead>
-		<tbody>
-			@foreach($studentAttendances as $key => $value )
-			<tr>
-				<td>{{ $key+1 }}</td>
-				<td> {{ $value['student']['last_name']    }}  {{    $value['student']['first_name'] }}</td>
-				<td> {{ $value['student']['id_no'] }}</td>
-				<td> {{ $value->attendance_status }}</td>
-
-
-			</tr>
-			@endforeach
-
-						</tbody>
-						<tfoot>
-
-						</tfoot>
-					  </table>
-					</div>
-				</div>
-				<!-- /.box-body -->
-			  </div>
-			  <!-- /.box -->
-
-
-			</div>
-			<!-- /.col -->
-		  </div>
-		  <!-- /.row -->
-		</section>
-		<!-- /.content -->
-
-	  </div>
-  </div>
-
-
-
-
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div><h1 class="box-title"> كشف حضور: <strong>{{ $group[0]->name }}</strong></h1></div>
+                <div><h1 class="box-title"> التاريخ:
+                        <strong>{{ date('d / m / Y', strtotime($groupAttendances->date)) }}</strong></h1></div>
+                <div class="mb-2">
+                    <a class="btn pt-0 pl-0 d-inline-block d-md-none" data-toggle="collapse" href="#displayOptions"
+                       role="button" aria-expanded="true" aria-controls="displayOptions">
+                        Display Options
+                        <i class="simple-icon-arrow-down align-middle"></i>
+                    </a>
+                    <div class="collapse dont-collapse-sm" id="displayOptions">
+                        <div class="d-block d-md-inline-block">
+                            <div class="search-sm d-inline-block float-md-left mr-1 mb-1 align-top">
+                                <input class="form-control" placeholder="بحث ..." id="searchDatatable">
+                            </div>
+                        </div>
+                        <div class="float-md-right dropdown-as-select" id="pageCountDatatable">
+                            <span class="text-muted text-small m-2">Displaying 1-10 of 40 items </span>
+                            <button class="btn btn-outline-dark btn-xs dropdown-toggle" type="button"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                10
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="#">5</a>
+                                <a class="dropdown-item active" href="#">10</a>
+                                <a class="dropdown-item" href="#">20</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="separator mb-3"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 mb-4 data-table-rows data-tables-hide-filter">
+                <table id="datatableRows" class="data-table responsive nowrap"
+                       data-order="[[ 1, &quot;desc&quot; ]]">
+                    <thead>
+                    <tr>
+                        <th style="text-align: center">اسم ولقب التلميذ</th>
+                        <th style="text-align: center">رقم التسجيل</th>
+                        <th style="text-align: center">الحالة</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($studentAttendances as $key => $value )
+                        <tr>
+                            <td style="text-align: center"> {{ $value['student']['last_name']    }}  {{    $value['student']['first_name'] }}</td>
+                            <td style="text-align: center"> {{ $value['student']['id_no'] }}</td>
+                            <td style="text-align: center"> {{ $value->attendance_status }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
 @endsection

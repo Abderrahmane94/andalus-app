@@ -68,4 +68,22 @@ class StudentYearController extends Controller
 
         return redirect()->route('student.year.view')->with($notification);
     }
+
+    public function StudentYearUpdateStatus($year_id) {
+        $year_status = $this->setupService->updateStatusStudentYearById($year_id);
+
+        if ($year_status)
+            $notification = array(
+                'message' => 'تم تفعيل السنة الدراسية بنجاح',
+                'alert-type' => 'info'
+            );
+
+        else
+            $notification = array(
+                'message' => 'تم تعطيل  السنة الدراسية بنجاح',
+                'alert-type' => 'info'
+            );
+
+        return redirect()->route('student.year.view')->with($notification);
+    }
 }

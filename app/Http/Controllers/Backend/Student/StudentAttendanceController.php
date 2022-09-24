@@ -48,9 +48,9 @@ class StudentAttendanceController extends Controller
         return view('backend.student.student_attendance.student-attendance-add', $data);
     }
 
-    public function AttendanceStudentStore(Request $request)
+    public function AttendanceStudentStore(Request $request, $group_id)
     {
-        $this->studentService->addStudentAttendance($request);
+        $this->studentService->addStudentAttendance($request,$group_id);
 
         $notification = array(
             'message' => 'تم إضافة كشف الحضور بنجاح',

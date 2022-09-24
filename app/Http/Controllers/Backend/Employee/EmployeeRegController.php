@@ -40,7 +40,7 @@ class EmployeeRegController extends Controller
 
         return redirect()->route('employee.registration.view')->with($notification);
 
-    } // END Method
+    }
 
     public function EmployeeEdit($id)
     {
@@ -65,5 +65,17 @@ class EmployeeRegController extends Controller
     public function EmployeeDetails($id)
     {
         $this->employeeService->employeeDetailsPDF($id);
+    }
+
+    public function DeleteEmployee($employee_id)
+    {
+        $this->employeeService->deleteEmployeeById($employee_id);
+
+        $notification = array(
+            'message' => 'تم إزالة الموظف بنجاح',
+            'alert-type' => 'info'
+        );
+
+        return redirect()->route('employee.registration.view')->with($notification);
     }
 }

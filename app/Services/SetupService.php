@@ -13,6 +13,7 @@ use App\Models\SchoolSubject;
 use App\Models\StudentClass;
 use App\Models\StudentGroup;
 use App\Models\StudentYear;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use DB;
 
@@ -28,22 +29,16 @@ class SetupService
 
     public function addYear($name)
     {
-        $data = new StudentYear();
-        $data->name = $name;
-        $data->save();
+        $year = new StudentYear();
+        $year->name = $name;
+        $year->active = false;
+        $year->save();
     }
 
     public function editYear($id, $request)
     {
         $data = $this->findYearById($id);
         $data->name = $request->name;
-        if ($request->has('active')) {
-            StudentYear::where('id', '!=', $id)
-                ->update(['active' => false]);
-            $data->active = true;
-        }
-        /*else $data->active = false;*/
-
         $data->save();
     }
 
@@ -61,6 +56,18 @@ class SetupService
     {
         $year = $this->findYearById($id);
         $year->delete();
+    }
+
+    public function updateStatusStudentYearById($year_id)
+    {
+        $year = $this->findYearById($year_id);
+        if (!$year->active) {
+            StudentYear::where('id', '!=', $year_id)
+                ->update(['active' => false]);
+            $year->active = true;
+        }
+        $year->save();
+        return $year->active;
     }
 
     /*----- School Subject -----*/
@@ -175,6 +182,13 @@ class SetupService
         return FeeCategoryAmount::where('fee_category_id', $fee_cat_id)->orderBy('class_id', 'asc')->get();
     }
 
+    public function findFeeCategoryAMountByClassIdByFeeCategory($class_id, $fee_cat_id)
+    {
+        return FeeCategoryAmount::where('class_id', $class_id)
+            ->where('fee_category_id', $fee_cat_id)
+            ->get();
+    }
+
     public function addFeeAmount(Request $request)
     {
         $countClass = count($request->class_id);
@@ -212,6 +226,12 @@ class SetupService
         return StudentClass::all();
     }
 
+    public function getStudentClassesHasStudent()
+    {
+        $assign_student_id = AssignStudent::whereNotNull('class_id')->get()->unique('class_id')->pluck('class_id');
+        return StudentClass::whereIn('id', $assign_student_id)->get();
+    }
+
     public function addStudentClass($name, $level): void
     {
         $data = new StudentClass();
@@ -246,23 +266,49 @@ class SetupService
         return StudentGroup::all();
     }
 
+    public function getActiveStudentGroup()
+    {
+        return StudentGroup::where('active', true)->get();
+    }
+
     public function addStudentGroup(Request $request)
     {
-        $data = new StudentGroup();
-        $data->name = $request->name;
-        $data->subject_id = $request->subject;
-        $data->teacher_id = $request->teacher;
-        $data->classes_id = $request->room;
-        $data->class_id = $request->class;
-        $data->group_type = $request->group_type;
-        $data->start_time = $request->start_time;
-        $data->end_time = $request->end_time;
-        $data->day = $request->day;
-        $data->nb_lessons = 0;
-        $data->nb_cycle_lesson = $request->nb_cycle_lesson;
-        $data->fee_type_id = $request->fee_type_id;
+        $student_group_name = $this->createStudentGroupName($request->subject,$request->class);
 
-        $data->save();
+        DB::transaction(function () use ($request,$student_group_name) {
+            $data = new StudentGroup();
+            $data->name = $student_group_name;
+            $data->subject_id = $request->subject;
+            $data->teacher_id = $request->teacher;
+            $data->class_id = $request->class;
+            $data->group_type = $request->group_type;
+            $data->alone_date = $request->alone_date_input;
+            $data->nb_lessons = 0;
+            $data->nb_lesson_cycle = $request->nb_cycle_lesson;
+            $data->fee_type_id = $request->fee_type_id;
+            $data->fix_salary = $request->fix_salary;
+            $data->amount_per_student = $request->amount_per_student;
+
+            if ($request->group_type == 'فردي') {
+                info('here alone');
+                info('start time : ' . $request->start_time[0]);
+                info('end time : ' . $request->end_time[0]);
+                $data->start_time = $request->start_time[0];
+                $data->end_time = $request->end_time[0];
+                $data->classes_id = $request->room[0];
+            }
+
+            $data->save();
+
+            if ($request->group_type == 'جماعي') {
+                info('here group');
+                for ($i = 0; $i < count($request->group_date_input); $i++) {
+                    DB::table('learning_seances')->insertGetId(
+                        ['day' => $request->group_date_input[$i], 'start_time' => $request->start_time[$i], 'end_time' => $request->end_time[$i], 'student_group_id' => $data->id, 'room_id' => $request->room[$i]]
+                    );
+                }
+            }
+        });
     }
 
     public function findStudentGroupById($id)
@@ -283,7 +329,10 @@ class SetupService
         $data->end_time = $request->end_time;
         $data->day = $request->day;
         $data->nb_lessons = 0;
+        $data->nb_lesson_cycle = $request->nb_cycle_lesson;
         $data->fee_type_id = $request->fee_type_id;
+        $data->fix_salary = $request->fix_salary;
+        $data->amount_per_student = $request->amount_per_student;
 
         $data->save();
     }
@@ -298,35 +347,55 @@ class SetupService
                 $assignStudent->group_id = $value;
                 $assignStudent->save();
 
-                $last_group_attendance = GroupAttendance::where('group_id',$request->group_id)->get();
+                $last_group_attendance = GroupAttendance::where('group_id', $request->group_id)->get();
                 $last_group_attendance = $last_group_attendance->sortByDesc('num_lesson')->first();
 
                 if (empty($last_group_attendance)) $num_lesson = 0;
                 else $num_lesson = $last_group_attendance->num_lesson;
 
-                $group = StudentGroup::where('id',$request->group_id)->first();
+                $group = StudentGroup::where('id', $request->group_id)->first();
 
                 $fee_amount_group = FeeCategoryAmount::where('fee_category_id', 2)
                     ->where('class_id', $group->class_id)
                     ->first();
                 $fee_amount = $fee_amount_group->amount;
-                $nb_lesson_cycle = $group->nb_lesson_cycle;
+                if ($group->fee_type_id == 2) {
+                    $nb_lesson_cycle = $group->nb_lesson_cycle;
 
-                $account_student_fees = new AccountStudentFee();
-                $account_student_fees->student_id = $student_id;
-                $account_student_fees->group_id = $value;
-                $account_student_fees->fee_category_id = 2;
-                $account_student_fees->amount_to_be_paid = $fee_amount;
-                $account_student_fees->num_lesson_start = $num_lesson + 1;
-                $account_student_fees->num_lesson_end = $num_lesson + 4;
-                $account_student_fees->save();
+                    $account_student_fees = new AccountStudentFee();
+                    $account_student_fees->student_id = $student_id;
+                    $account_student_fees->group_id = $value;
+                    $account_student_fees->fee_category_id = 2;
+                    $account_student_fees->amount_to_be_paid = $fee_amount;
+                    $account_student_fees->num_lesson_start = $num_lesson + 1;
+                    $account_student_fees->num_lesson_end = $num_lesson + 4;
+                    $account_student_fees->save();
 
-                for ($i =1; $i <= $nb_lesson_cycle; $i++) {
-                    $ligne_account_student_fee = new LigneAccountStudentFee();
-                    $ligne_account_student_fee->account_student_id = $account_student_fees->id;
-                    $ligne_account_student_fee->amount = $fee_amount / $nb_lesson_cycle;
-                    $ligne_account_student_fee->num_lesson = $num_lesson+$i;
-                    $ligne_account_student_fee->save();
+                    for ($i = 1; $i <= $nb_lesson_cycle; $i++) {
+                        $ligne_account_student_fee = new LigneAccountStudentFee();
+                        $ligne_account_student_fee->account_student_id = $account_student_fees->id;
+                        $ligne_account_student_fee->amount = $fee_amount / $nb_lesson_cycle;
+                        $ligne_account_student_fee->num_lesson = $num_lesson + $i;
+                        $ligne_account_student_fee->save();
+                    }
+                } elseif ($group->fee_type_id == 1) {
+                    if ($num_lesson == 0) {
+                        $account_student_fees = new AccountStudentFee();
+                        $account_student_fees->student_id = $student_id;
+                        $account_student_fees->group_id = $value;
+                        $account_student_fees->fee_category_id = 2;
+                        $account_student_fees->amount_to_be_paid = $fee_amount;
+                        $account_student_fees->save();
+                    } else {
+                        $total_days_in_current_month = date('t', strtotime($last_group_attendance->date));
+                        $remaining_days = $total_days_in_current_month - date('d');
+                        $account_student_fees = new AccountStudentFee();
+                        $account_student_fees->student_id = $student_id;
+                        $account_student_fees->group_id = $value;
+                        $account_student_fees->fee_category_id = 2;
+                        $account_student_fees->amount_to_be_paid = $remaining_days * ($fee_amount / $total_days_in_current_month);
+                        $account_student_fees->save();
+                    }
                 }
             }
         });
@@ -336,8 +405,15 @@ class SetupService
     {
         $group = $this->findStudentGroupById($id_group);
 
-        if ($group->active) $group->active = false;
-        else $group->active = true;
+        if ($group->active) {
+            $group->active = false;
+            $group->end_date = Carbon::now()->format('Y-m-d');
+        }
+        else {
+            $group->active = true;
+            $group->start_date = Carbon::now()->format('Y-m-d');
+            $group->end_date = null;
+        }
 
         $group->save();
 
@@ -379,8 +455,6 @@ class SetupService
 
         // delete assignment of the student to the group
         AssignStudent::where('student_id', $student_id)->where('group_id', $group_id)->delete();
-
-
     }
 
     public function deleteStudentGroupById($id): void
@@ -394,4 +468,38 @@ class SetupService
         return StudentGroup::where('active', $active)->get();
     }
 
+    public function getFeeCategoryWithoutAmount()
+    {
+        $fee_category_amount = FeeCategoryAmount::all();
+        $fee_category = FeeCategory::all();
+        $fee_category = $fee_category->whereNotIn('id', $fee_category_amount->pluck('fee_category_id'));
+        return $fee_category;
+    }
+
+    public function getAllActiveLearningSeances()
+    {
+        $groups_id = $this->getActiveStudentGroup()->pluck('id');
+
+        return DB::table('learning_seances')->whereIn('student_group_id', $groups_id)->get();
+    }
+
+    public function createStudentGroupName($subject_id, $class_id)
+    {
+        $nb_group = StudentGroup::where('subject_id',$subject_id)
+                                    ->where('class_id',$class_id)->get()->count()+1;
+        $subject_name = $this->getSubjectById($subject_id)->name;
+        $class_name = $this->getClassById($class_id)->name;
+
+        return $class_name.' '.$subject_name.' '.$nb_group;
+    }
+
+    public function getSubjectById($subject_id)
+    {
+        return SchoolSubject::find($subject_id);
+    }
+
+    public function getClassById($class_id)
+    {
+        return StudentClass::find($class_id);
+    }
 }

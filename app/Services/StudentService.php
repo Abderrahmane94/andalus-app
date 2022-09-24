@@ -13,6 +13,9 @@ use App\Models\StudentYear;
 use App\Models\User;
 use Illuminate\Http\Request;
 use DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+
 
 class StudentService
 {
@@ -20,34 +23,17 @@ class StudentService
 
     public function addStudent(Request $request)
     {
+        Log::info('Enter To Add Student Service !');
+
         DB::transaction(function () use ($request) {
             // create student account
             $student = $this->createStudent($request);
+
             /// registration fee
             $amount_to_be_paid = FeeCategoryAmount::where('fee_category_id', 1)
                 ->where('class_id', $request->class_id)->first();
 
-            $this->addAccountStudentFee($student->id, null, 1, $amount_to_be_paid->amount, null, null, false, false);
-
-            /*            // assign student to groups
-                        if ($request->group_id != NULL) {
-                            $countGroups = count($request->group_id);
-                            for ($i = 0; $i < $countGroups; $i++) {
-                                $assign_student = new AssignStudent();
-                                $assign_student->student_id = $user->id;
-                                $assign_student->year_id = $request->year_id;
-                                $assign_student->class_id = $request->class_id;
-                                $assign_student->group_id = $request->group_id[$i];
-                                $assign_student->save();
-                            } // End For Loop
-                        }// End If Condition*/
-
-            /* $discount_student = new DiscountStudent();
-              $discount_student->assign_student_id = $assign_student->id;
-              $discount_student->fee_category_id = '1';
-              $discount_student->discount = $request->discount;
-              $discount_student->save();*/
-
+            $this->addAccountStudentFee($student->id, null, 1, $amount_to_be_paid->amount, null, null, 0, 0, false, false);
         });
     }
 
@@ -85,7 +71,7 @@ class StudentService
             }
 
         }
-        return $checkYear . "/" . $id_no;
+        return $checkYear . "-" . $id_no;
     }
 
     public function createStudent(Request $request): User
@@ -110,7 +96,20 @@ class StudentService
             $file = $request->file('image');
             $filename = date('YmdHi') . $file->getClientOriginalName();
             $file->move(public_path('upload/student_images'), $filename);
-            $user['image'] = $filename;
+            $student['image'] = $filename;
+            $student['profile_photo_path'] = 'upload/student_images/' . $filename;
+
+        }
+        if ($request->filled('image_captured')) {
+            $folderPath = "upload/student_images/";
+            $base64Image = explode(";base64,", $request->image_captured);
+            $explodeImage = explode("image/", $base64Image[0]);
+            $imageType = $explodeImage[1];
+            $image_base64 = base64_decode($base64Image[1]);
+            $file = $folderPath . $final_id_no . '. ' . $imageType;
+            file_put_contents($file, $image_base64);
+            $student['image'] = $final_id_no . '. ' . $imageType;
+            $student['profile_photo_path'] = $file;
         }
         $student->save();
 
@@ -124,7 +123,7 @@ class StudentService
 
     public function getAssignStudentByGroupId($Group_id)
     {
-        return AssignStudent::where('group_id', '=', $Group_id)->get();
+        return AssignStudent::where('group_id', $Group_id)->get();
     }
 
     public function assignStudentToAClass(User $student, $year_id, $class_id): void
@@ -148,13 +147,21 @@ class StudentService
 
     /*-------------- Student Attendances ----------- */
 
-    public function addStudentAttendance(Request $request)
+    public function addStudentAttendance(Request $request,$group_id)
     {
-        $student_group = StudentGroup::where('id', $request->group_id)->first();
+        $student_group = StudentGroup::where('id', $group_id)->first();
+        $count_students = count($request->student_id);
+        $count_present_students = 0;
+        $nb_lesson = $student_group->nb_lessons + 1;
+        $attendanceCollection = collect();
+
+        // update student group
+        $student_group->nb_lessons = $student_group->nb_lessons + 1;
+        $student_group->save();
 
         //// add new group Attendance
         $attend_group = new GroupAttendance();
-        $attend_group->group_id = $request->group_id;
+        $attend_group->group_id = $group_id;
         $attend_group->teacher_id = $request->teacher_id;
         $attend_group->classes_id = $request->classes_id;
         $attend_group->date = date('Y-m-d', strtotime($request->date));
@@ -165,49 +172,50 @@ class StudentService
         }
         $attend_group->save();
 
-        ///// update student group
-        $nb_lesson = $student_group->nb_lessons + 1;
-        $student_group->nb_lessons = $student_group->nb_lessons + 1;
-        $student_group->save();
-
-        $count_students = count($request->student_id);
-        $attendanceCollection = collect();
-
+        // add Student Attendances
         for ($i = 0; $i < $count_students; $i++) {
             $attend_status = 'attend_status' . $i;
             $attend = new StudentAttendance();
             $attend->student_id = $request->student_id[$i];
             $attend->attendance_status = $request->$attend_status;
+            if ( $request->$attend_status == 'حاضر') $count_present_students++;
             $attend->attendance_group_id = $attend_group->id;
             $attend->save();
             $attendanceCollection->put($attend->student_id, $attend->attendance_status);
+        }
 
-        } // end For Loop
+        // update nb present student
+        $attend_group->nb_student = $count_present_students;
+        $attend_group->save();
 
         /// account student fee
-        $account_student_fees = AccountStudentFee::where('group_id', $request->group_id)->get();
+        /// paiement per session
+        if ($student_group->fee_type_id == 2) {
 
-        $amount_to_be_paid = FeeCategoryAmount::where('fee_category_id', 2)
-            ->where('class_id', $student_group->class_id)->first();
+            $account_student_fees = AccountStudentFee::where('group_id', $group_id)->get();
 
-        foreach ($account_student_fees as $account_student_fee) {
-            if ($account_student_fee->active) {
-                if ($account_student_fee->num_lesson_end == $nb_lesson) {
-                    $num_lesson_start = $nb_lesson + 1;
-                    $num_lesson_end = $nb_lesson + $student_group->nb_lesson_cycle;
-                    // add new account student fee for the new cycle
-                    $this->addAccountStudentFee($account_student_fee->student_id, $account_student_fee->group_id, 2, $amount_to_be_paid->amount, $num_lesson_start, $num_lesson_end, false, false);
-                }
-            } else {
-                if ($attendanceCollection->pull($account_student_fee->student_id) == 'حاضر') {
-                    $account_student_fee->num_lesson_start = $nb_lesson;
-                    $account_student_fee->num_lesson_end   = $nb_lesson + $student_group->nb_lesson_cycle - 1;
-                    $account_student_fee->active = true;
-                    $account_student_fee->save();
+            $amount_to_be_paid = FeeCategoryAmount::where('fee_category_id', 2)
+                ->where('class_id', $student_group->class_id)->first();
+
+            foreach ($account_student_fees as $account_student_fee) {
+                if ($account_student_fee->active) {
+                    if ($account_student_fee->num_lesson_end == $nb_lesson) {
+                        $num_lesson_start = $nb_lesson + 1;
+                        $num_lesson_end = $nb_lesson + $student_group->nb_lesson_cycle;
+                        // add new account student fee for the new cycle
+                        $this->addAccountStudentFee($account_student_fee->student_id, $account_student_fee->group_id, 2, $amount_to_be_paid->amount, $num_lesson_start, $num_lesson_end, 0, 0, false, false);
+                    }
                 } else {
-                    $account_student_fee->num_lesson_start = $nb_lesson + 1;
-                    $account_student_fee->num_lesson_end   = $nb_lesson + $student_group->nb_lesson_cycle;
-                    $account_student_fee->save();
+                    if ($attendanceCollection->pull($account_student_fee->student_id) == 'حاضر') {
+                        $account_student_fee->num_lesson_start = $nb_lesson;
+                        $account_student_fee->num_lesson_end = $nb_lesson + $student_group->nb_lesson_cycle - 1;
+                        $account_student_fee->active = true;
+                        $account_student_fee->save();
+                    } else {
+                        $account_student_fee->num_lesson_start = $nb_lesson + 1;
+                        $account_student_fee->num_lesson_end = $nb_lesson + $student_group->nb_lesson_cycle;
+                        $account_student_fee->save();
+                    }
                 }
             }
         }
@@ -225,7 +233,7 @@ class StudentService
 
     /*------------- Student Fee -------------------*/
 
-    public function addAccountStudentFee($student_id, $group_id, $fee_category_id, $amount_to_be_paid, $num_lesson_start, $num_lesson_end, $fee_status, $active): void
+    public function addAccountStudentFee($student_id, $group_id, $fee_category_id, $amount_to_be_paid, $num_lesson_start, $num_lesson_end, $month, $days_month, $fee_status, $active): void
     {
         $accountStudentFee = new AccountStudentFee();
         $accountStudentFee->student_id = $student_id;
@@ -234,6 +242,8 @@ class StudentService
         $accountStudentFee->amount_to_be_paid = $amount_to_be_paid;
         $accountStudentFee->num_lesson_start = $num_lesson_start;
         $accountStudentFee->num_lesson_end = $num_lesson_end;
+        $accountStudentFee->month = $month;
+        $accountStudentFee->days_month = $days_month;
         $accountStudentFee->fee_status = $fee_status;
         $accountStudentFee->active = $active;
         $accountStudentFee->save();

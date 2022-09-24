@@ -36,20 +36,19 @@ class StudentRegController extends Controller
     public function StudentRegView()
     {
         $data['years'] = $this->setupService->getAllYears();
-        $data['classes'] = $this->setupService->getAllStudentClasses();
+        $data['classes'] = $this->setupService->getStudentClassesHasStudent();
         $data['allData'] = $this->studentService->getAssignStudentByGroupId(null);
         $data['allStudent'] = $this->userService->findUserByType('Student');
-
         return view('backend.student.student_registration.student-view', $data);
     }
 
     public function StudentClassYearWise(Request $request)
     {
         $data['years'] = $this->setupService->getAllYears();
-        $data['classes'] = $this->setupService->getAllStudentClasses();
-        $data['year_id'] = $request->year_id;
+        $data['classes'] = $this->setupService->getStudentClassesHasStudent();
+        $data['year_id'] = $this->setupService->findActiveYear()->id;
         $data['class_id'] = $request->class_id;
-        $data['allData'] = $this->studentService->getAssignStudentByYearByClass($request->year_id, $request->class_id);
+        $data['allData'] = $this->studentService->getAssignStudentByYearByClass($data['year_id'], $request->class_id);
         return view('backend.student.student_registration.student-view', $data);
     }
 
@@ -245,7 +244,7 @@ class StudentRegController extends Controller
         $this->studentService->deleteStudent($student_id);
 
         $notification = array(
-            'message' => 'تم إزالةالتلميذ بنجاح',
+            'message' => 'تم إزالة التلميذ بنجاح',
             'alert_type' => 'info'
         );
 

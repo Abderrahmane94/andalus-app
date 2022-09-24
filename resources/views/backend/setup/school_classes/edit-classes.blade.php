@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-12">
 
-                <h1>تعديل القاعة الدراسية</h1>
+                <h1><b>تعديل القاعة الدراسية</b></h1>
                 <div class="separator mb-5"></div>
 
             </div>

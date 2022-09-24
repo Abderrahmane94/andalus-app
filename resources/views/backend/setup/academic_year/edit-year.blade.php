@@ -4,7 +4,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <h1>تعديل السنة الدراسية</h1>
+                <h1><b>تعديل السنة الدراسية</b></h1>
                 <div class="separator mb-5"></div>
             </div>
         </div>
@@ -19,11 +19,6 @@
                         <div class="invalid-tooltip">
                             مطلوب إدخال الاسم!
                         </div>
-                    </div>
-                    <div class="form-group position-relative error-l-50">
-                        <label>تفعيل السنة الدراسية</label>
-                        <input type="checkbox" name="active" {{ $editData->active ? 'checked="checked"' : '' }}
-                        aria-label="Checkbox for following text input">
                     </div>
                     <a href="{{ url()->previous() }}" class="btn btn-warning mb-0" style="float: left">عودة</a>
                     <input type="submit" class="btn btn-primary mb-0 mr-2" style="float: left" value="تعديل">

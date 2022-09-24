@@ -41,6 +41,8 @@ class StudentGroupController extends Controller
         $data['teachers'] = $this->userService->findUserByType('Teacher');
         $data['classes'] = $this->setupService->getAllStudentClasses();
         $data['rooms'] = $this->setupService->getAllClasses();
+        $data['groups'] = $this->setupService->getActiveStudentGroup();
+        $data['learning_seances'] = $this->setupService->getAllActiveLearningSeances();
         return view('backend.setup.group.add-group', $data);
     }
 
@@ -56,11 +58,11 @@ class StudentGroupController extends Controller
         return redirect()->route('student.group.view')->with($notification);
     }
 
-    public function StudentGroupEdit($id)
+    public function StudentGroupEdit($student_group_id)
     {
-        $editData['group'] = $this->setupService->findStudentGroupById($id);
+        $editData['group'] = $this->setupService->findStudentGroupById($student_group_id);
         $editData['subjects'] = $this->setupService->getAllSubjects();
-        $editData['teachers'] = $this->userService->findUserByType('Employee');
+        $editData['teachers'] = $this->userService->findUserByType('Teacher');
         $editData['classes'] = $this->setupService->getAllStudentClasses();
         $editData['rooms'] = $this->setupService->getAllClasses();
         return view('backend.setup.group.edit-group', $editData);

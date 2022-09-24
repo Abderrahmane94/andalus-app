@@ -26,7 +26,7 @@
         <div class="position-relative d-none d-sm-inline-block">
             <button class="header-icon btn btn-empty" type="button" id="iconMenuButton" data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false">
-                <i class="simple-icon-grid"></i>
+                <i class="simple-icon-menu"></i>
             </button>
             <div class="dropdown-menu dropdown-menu-left mt-3  position-absolute" id="iconMenuDropdown">
                 <a href="#" class="icon-menu-item">
@@ -61,6 +61,9 @@
 
             </div>
             <span class="text-muted" disabled>{{\App\Services\SetupService::findActiveYear()->name}}</span>
+            <a href="{{route('calendar.index')}}" class="icon-menu-item" title="البرنامج الأسبوعي">
+                <i class="iconsminds-calendar-4" ></i>
+            </a>
 
         </div>
         {{--<div class="search" data-search-path="Pages.Search.html?q=">
@@ -73,11 +76,9 @@
 
     </div>
 
-
     <a class="navbar-logo" href="{{ route('dashboard') }}">
         <img src="{{asset('/img/logo-andalus-logo.png')}}">
     </a>
-
 
     <div class="navbar-right">
         <div class="header-icons d-inline-block align-middle">
@@ -108,6 +109,7 @@
                     </div>
                 </div>
             </div>--}}
+
 
             <!--notifications-->
             <div class="position-relative d-inline-block">

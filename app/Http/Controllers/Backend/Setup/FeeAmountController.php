@@ -20,14 +20,13 @@ class FeeAmountController extends Controller
 
     public function ViewFeeAmount()
     {
-        // $data['allData'] = FeeCategoryAmount::all();
         $data['allData'] = $this->setupService->getAllFeeAmountByCategory();
         return view('backend.setup.fee_amount.view-fee-amount', $data);
     }
 
     public function AddFeeAmount()
     {
-        $data['fee_categories'] = $this->setupService->getAllFeeCategory();
+        $data['fee_categories'] = $this->setupService->getFeeCategoryWithoutAmount();
         $data['classes'] = $this->setupService->getAllStudentClasses();
         return view('backend.setup.fee_amount.add-fee-amount', $data);
     }

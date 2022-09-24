@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Backend\Account\StudentFeeController;
 use App\Http\Controllers\Backend\Employee\EmployeeRegController;
+use App\Http\Controllers\Backend\Employee\EmployeeSalaryController;
+use App\Http\Controllers\Backend\Setup\Backend\Account\AccountSalaryController;
+use App\Http\Controllers\Backend\Setup\CalendarController;
 use App\Http\Controllers\Backend\Setup\StudentGroupController;
 use App\Http\Controllers\Backend\Student\StudentAttendanceController;
 use App\Http\Controllers\Backend\Student\StudentRegController;
@@ -107,6 +110,8 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::post('/year/update/{id}', [StudentYearController::class, 'StudentYearUpdate'])->name('update.student.year');
 
+        Route::get('/year/update_status/{id}', [StudentYearController::class, 'StudentYearUpdateStatus'])->name('update.student.year.status');
+
         Route::get('/year/delete/{id}', [StudentYearController::class, 'StudentYearDelete'])->name('student.year.delete');
 
 
@@ -189,6 +194,9 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('/group/update_status/{id}', [StudentGroupController::class, 'StudentGroupUpdateStatus'])->name('student.group.update.status');
 
+        // Calendar Routes
+
+        Route::get('/calendar/view', [CalendarController::class, 'index'])->name('calendar.index');
     });
 
     /// Student Routes
@@ -226,7 +234,7 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::post('attendance/student/add', [StudentAttendanceController::class, 'AttendanceStudentAdd'])->name('student.attendance.add');
 
-        Route::post('attendance/student/store', [StudentAttendanceController::class, 'AttendanceStudentStore'])->name('store.student.attendance');
+        Route::post('attendance/student/store/{group_id}', [StudentAttendanceController::class, 'AttendanceStudentStore'])->name('store.student.attendance');
 
         Route::post('attendance/student/update/{group_attendance_id}', [StudentAttendanceController::class, 'AttendanceStudentUpdate'])->name('update.student.attendance');
 
@@ -265,7 +273,7 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('account/salary/add', [AccountSalaryController::class, 'AccountSalaryAdd'])->name('account.salary.add');
 
-        Route::get('account/salary/getemployee', [AccountSalaryController::class, 'AccountSalaryGetEmployee'])->name('account.salary.getemployee');
+        Route::get('account/salary/getEmployee', [AccountSalaryController::class, 'AccountSalaryGetEmployee'])->name('account.salary.getemployee');
 
         Route::post('account/salary/store', [AccountSalaryController::class, 'AccountSalaryStore'])->name('account.salary.store');
 
@@ -288,7 +296,7 @@ Route::group(['middleware' => 'auth'], function () {
         /// Registration
         Route::get('/reg/view', [EmployeeRegController::class, 'EmployeeView'])->name('employee.registration.view');
 
-        Route::get('/re/add', [EmployeeRegController::class, 'EmployeeAdd'])->name('employee.registration.add');
+        Route::get('/reg/add', [EmployeeRegController::class, 'EmployeeAdd'])->name('employee.registration.add');
 
         Route::post('/reg/store', [EmployeeRegController::class, 'EmployeeStore'])->name('store.employee.registration');
 
@@ -298,12 +306,17 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('/reg/details/{id}', [EmployeeRegController::class, 'EmployeeDetails'])->name('employee.registration.details');
 
+        Route::get('/reg/delete/{id}',[EmployeeRegController::class, 'DeleteEmployee'])->name('employee.registration.delete');
+
+
         // Employee Salary All Routes
-        Route::get('salary/view', [EmployeeSalaryController::class, 'SalaryView'])->name('employee.salary.view');
+        Route::get('salary/view/{employee_id}', [EmployeeSalaryController::class, 'SalaryView'])->name('employee.salary.view');
+
+        Route::get('/salary/add/{id}', [EmployeeSalaryController::class, 'SalaryAdd'])->name('employee.salary.add');
 
         Route::get('salary/increment/{id}', [EmployeeSalaryController::class, 'SalaryIncrement'])->name('employee.salary.increment');
 
-        Route::post('salary/store/{id}', [EmployeeSalaryController::class, 'SalaryStore'])->name('update.increment.store');
+        Route::post('salary/store/{employee_id}', [EmployeeSalaryController::class, 'SalaryStore'])->name('employee.salary.store');
 
         Route::get('salary/details/{id}', [EmployeeSalaryController::class, 'SalaryDetails'])->name('employee.salary.details');
 
@@ -329,7 +342,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     });
 
-}); // End Middleware Auth Route
+});
 
 
 

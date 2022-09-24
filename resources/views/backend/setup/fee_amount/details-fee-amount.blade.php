@@ -1,12 +1,11 @@
 @extends('admin.adminBase')
 @section('admin')
 
-
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <h1>تفاصيل مبالغ فئات الرسوم</h1>
-                <h4><strong>فئة الرسوم: </strong>{{ $detailsData['0']['fee_cateogry']['name'] }}</h4>
+                <h1><b>تفاصيل مبالغ فئات الرسوم</b></h1>
+                <h2> فئة الرسوم: <b>{{ $detailsData['0']['fee_cateogry']['name'] }} </b></h2>
 
                 <div class="separator mb-5"></div>
 
@@ -42,9 +41,5 @@
         </div>
 
     </div>
-
-
-
-
 
 @endsection

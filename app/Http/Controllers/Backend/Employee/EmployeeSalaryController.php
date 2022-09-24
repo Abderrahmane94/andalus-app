@@ -1,71 +1,48 @@
 <?php
 
-namespace App\Http\Controllers\Backend\Setup\Backend\Employee;
+namespace App\Http\Controllers\Backend\Employee;
 
-use App\Http\Controllers\Backend\Setup\Controller;
+use App\Http\Controllers\Controller;
+use App\Services\EmployeeService;
+use App\Services\SetupService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
-use App\Models\AssignStudent;
-use App\Models\User;
-use App\Models\DiscountStudent;
-
-use App\Models\StudentYear;
-use App\Models\StudentClass;
-use App\Models\StudentGroup;
-use App\Models\StudentShift;
-use DB;
-use PDF;
-
-use App\Models\Designation;
-use App\Models\EmployeeSallaryLog;
 
 class EmployeeSalaryController extends Controller
 {
-    public function SalaryView(){
-    	$data['allData'] = User::where('usertype','employee')->get();
-    	return view('backend.employee.employee_salary.employee_salary_view',$data);
+    protected $employeeService;
+    protected $userService;
+    protected $setupService;
+
+    public function __construct(UserService $userService, EmployeeService $employeeService, SetupService $setupService)
+    {
+        $this->userService = $userService;
+        $this->employeeService = $employeeService;
+        $this->setupService = $setupService;
     }
 
-
-    public function SalaryIncrement($id){
-    	$data['editData'] = User::find($id);
-    	return view('backend.employee.employee_salary.employee_salary_increment',$data);
-
+    public function SalaryView($employee_id) {
+    	$data['employee'] = $this->userService->findUserById($employee_id);
+        $data['account_employee_salaries'] = $this->employeeService->findAccountSalaryByIdEmployee($employee_id);
+    	return view('backend.employee.employee_salary.salary-view',$data);
     }
 
-    public function SalaryStore(Request $request, $id){
+    public function SalaryAdd($employee_id) {
+        $data['employee'] = $this->userService->findUserById($employee_id);
+        $data['group_attendances'] = $this->employeeService->getGroupAttendancesByIdEmployee($employee_id,false);
+        $data['student_groups'] = $this->employeeService->getStudentGroupsSalaryByIdEmployee($employee_id,$data['group_attendances']);
+        $data['principal_amount'] = $this->employeeService->getPrincipalSalaryAmountByEmployeeId($data['student_groups']);
+        return view('backend.employee.employee_salary.salary-add',$data);
+    }
 
-    	$user = User::find($id);
-    	$previous_salary = $user->salary;
-    	$present_salary = (float)$previous_salary+(float)$request->increment_salary;
-    	$user->salary = $present_salary;
-    	$user->save();
+    public function SalaryStore(Request $request, $employee_id){
+        $this->employeeService->addEmployeeSalary($request->description,$request->principal_amount,$request->grant_amount,$employee_id,$request->group_Attendance_id);
 
-    	$salaryData = new EmployeeSallaryLog();
-    	$salaryData->employee_id = $id;
-    	$salaryData->previous_salary = $previous_salary;
-    	$salaryData->increment_salary = $request->increment_salary;
-    	$salaryData->present_salary = $present_salary;
-    	$salaryData->effected_salary = date('Y-m-d',strtotime($request->effected_salary));
-    	$salaryData->save();
-
-    	$notification = array(
-    		'message' => 'Employee Salary Increment Successfully',
+        $notification = array(
+    		'message' => 'تم إضافة الراتب بنجاح',
     		'alert-type' => 'success'
     	);
 
-    	return redirect()->route('employee.salary.view')->with($notification);
-
+    	return redirect()->route('employee.salary.view',$employee_id)->with($notification);
     }
-
-
-    public function SalaryDetails($id){
-    	$data['details'] = User::find($id);
-    	$data['salary_log'] = EmployeeSallaryLog::where('employee_id',$data['details']->id)->get();
-    	//dd($data['salary_log']->toArray());
-    	return view('backend.employee.employee_salary.employee_salary_details',$data);
-
-    }
-
-
-
 }

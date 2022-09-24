@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Backend\Setup;
 
-use App\Http\Controllers\Backend\Setup\Controller;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SchoolSubject;
 use App\Models\StudentClass;

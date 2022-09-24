@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('/logos/logo-andalus.ico') }}">
 
-
     <!-- font-->
     <link rel="stylesheet" href="{{ asset('/font/iconsmind-s/css/iconsminds.css') }}"/>
     <link rel="stylesheet" href="{{ asset('/font/simple-line-icons/css/simple-line-icons.css') }}"/>
@@ -18,9 +17,9 @@
     <!-- Style-->
     <link rel="stylesheet" href="{{ asset('/css/vendor/bootstrap.min.css') }}"/>
     <link rel="stylesheet" href="{{ asset('/css/vendor/bootstrap.rtl.only.min.css') }}"/>
-    <link rel="stylesheet" href="{{ asset('/css/vendor/fullcalendar.min.css') }}"/>
     <link rel="stylesheet" href="{{ asset('/css/vendor/dataTables.bootstrap4.min.css') }}"/>
     <link rel="stylesheet" href="{{ asset('/css/vendor/datatables.responsive.bootstrap4.min.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('css/vendor/select2-bootstrap.min.css')}}" />
     <link rel="stylesheet" href="{{ asset('/css/vendor/select2.min.css') }}"/>
     <link rel="stylesheet" href="{{ asset('/css/vendor/perfect-scrollbar.css') }}"/>
     <link rel="stylesheet" href="{{ asset('/css/vendor/glide.core.min.css') }}"/>
@@ -69,7 +68,6 @@
 <script src="{{ asset('/js/vendor/Chart.bundle.min.js')}}"></script>
 <script src="{{ asset('/js/vendor/chartjs-plugin-datalabels.js')}}"></script>
 <script src="{{ asset('/js/vendor/moment.min.js')}}"></script>
-<script src="{{ asset('/js/vendor/fullcalendar.min.js')}}"></script>
 <script src="{{ asset('/js/vendor/progressbar.min.js')}}"></script>
 <script src="{{ asset('/js/vendor/jquery.barrating.min.js')}}"></script>
 <script src="{{ asset('/js/vendor/select2.full.js')}}"></script>

@@ -9,6 +9,11 @@ class StudentGroup extends Model
 {
     use HasFactory;
 
+
+    public function learningseances() {
+        return $this->hasMany(learningSeance::class);
+    }
+
     public function teacher(){
         return $this->belongsTo(User::class,'teacher_id','id');
     }
@@ -31,7 +36,11 @@ class StudentGroup extends Model
     }
 
     public function year(){
-        return$this->belongsTo(StudentYear::class,'year_id','id');
+        return $this->belongsTo(StudentYear::class,'year_id','id');
+    }
+
+    public function feeType(){
+        return $this->belongsTo(FeeTypes::class,'fee_type_id','id');
     }
 
 

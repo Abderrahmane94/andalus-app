@@ -265,10 +265,8 @@
                     })
                     return false;
                 }
-
             });
         });
-
 
     </script>
 
