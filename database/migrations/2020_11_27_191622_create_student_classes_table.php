@@ -16,9 +16,9 @@ class CreateStudentClassesTable extends Migration
         Schema::create('student_classes', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('level');
-            $table->string('year');
-            $table->string('section');
+            $table->string('level')->nullable();
+            $table->string('year')->nullable();
+            $table->string('section')->nullable();
             $table->timestamps();
         });
     }

@@ -16,6 +16,7 @@ class CreateStudentYearsTable extends Migration
         Schema::create('student_years', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
+            $table->boolean('active');
             $table->timestamps();
         });
     }

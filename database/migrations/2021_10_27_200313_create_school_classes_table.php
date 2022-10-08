@@ -17,7 +17,7 @@ class CreateSchoolClassesTable extends Migration
             $table->id();
             $table->string('name');
             $table->integer('nb_students');
-            $table->double('surface');
+            $table->double('surface')->nullable();
             $table->timestamps();
         });
     }

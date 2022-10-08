@@ -22,10 +22,8 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
-            //$table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
-            $table->timestamps();
-            $table->string('usertype')->nullable()->comment('student,employee,system,teacher');
+            $table->string('user_type')->nullable()->comment('student,employee,system,teacher');
             $table->string('mobile')->nullable();
             $table->string('address')->nullable();
             $table->string('gender')->nullable();
@@ -36,6 +34,7 @@ class CreateUsersTable extends Migration
             $table->date('dob')->nullable();
             $table->date('join_date')->nullable();
             $table->boolean('status')->default(1)->comment('0=inactive,1=active');
+            $table->timestamps();
         });
     }
 

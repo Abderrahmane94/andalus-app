@@ -16,6 +16,12 @@ class DatabaseSeeder extends Seeder
         // \App\Models\User::factory(10)->create();
         $this->call([
             UserSeeder::class,
+            StudentYearSeeder::class,
+            FeeCategorySeeder::class,
+            FeeTypesSeeder::class,
+            SchoolClassesSeeder::class,
+            SchoolSubjectSeeder::class,
+            StudentclassSeeder::class,
         ]);
     }
 }
