@@ -21,6 +21,7 @@ class CreateAccountStudentFeesTable extends Migration
             $table->double('amount_paid')->nullable();
             $table->double('remaining_amount')->nullable();
             $table->string('paiement_date')->nullable();
+            $table->integer('year_id');
             $table->timestamps();
         });
     }

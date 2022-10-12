@@ -19,6 +19,7 @@ class CreateLigneAccountStudentFeesTable extends Migration
             $table->integer('amount');
             $table->date('ligne_date');
             $table->integer('num_lesson')->nullable();
+            $table->integer('year_id');
             $table->timestamps();
         });
     }

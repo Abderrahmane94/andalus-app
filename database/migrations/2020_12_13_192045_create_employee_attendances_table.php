@@ -20,6 +20,7 @@ class CreateEmployeeAttendancesTable extends Migration
             $table->date('start_time');
             $table->date('end_time');
             $table->string('attendance_status');
+            $table->integer('year_id');
             $table->timestamps();
         });
     }

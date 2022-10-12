@@ -22,6 +22,7 @@ class CreateGroupAttendancesTable extends Migration
             $table->dateTime('end_time',$precision = 0);
             $table->string('date');
             $table->string('changes');
+            $table->integer('year_id');
             $table->timestamps();
         });
     }

@@ -20,6 +20,7 @@ class CreateLearningSeancesTable extends Migration
             $table->time('end_time');
             $table->bigInteger('student_group_id');
             $table->bigInteger('room_id');
+            $table->integer('year_id');
             $table->timestamps();
         });
     }

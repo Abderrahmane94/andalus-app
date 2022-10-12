@@ -20,6 +20,7 @@ class AccountEmployeeSalary extends Migration
             $table->double('principal_amount');
             $table->double('grant_amount');
             $table->date('date');
+            $table->integer('year_id');
             $table->timestamps();
         });
     }

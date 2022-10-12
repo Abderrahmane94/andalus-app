@@ -28,6 +28,7 @@ class CreateStudentGroupsTable extends Migration
             $table->integer('nb_lessons');
             $table->integer('fee_type_id');
             $table->boolean('active');
+            $table->integer('year_id');
             $table->timestamps();
         });
     }
