@@ -26,7 +26,6 @@ class StudentFeeController extends Controller
 {
     public function StudentFeeView()
     {
-
         $data['allData'] = AccountStudentFee::all();
         return view('backend.account.student_fee.student-fee-view', $data);
     }

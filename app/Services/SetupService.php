@@ -47,7 +47,7 @@ class SetupService
         return StudentYear::find($yearId);
     }
 
-    public static function findActiveYear()
+    public function findActiveYear()
     {
         return StudentYear::where('active', true)->first();
     }
@@ -274,13 +274,15 @@ class SetupService
     public function addStudentGroup(Request $request)
     {
         $student_group_name = $this->createStudentGroupName($request->subject,$request->class);
-
-        DB::transaction(function () use ($request,$student_group_name) {
+        $activeYear = $this->findActiveYear();
+        DB::transaction(function () use ($request,$student_group_name,$activeYear) {
             $data = new StudentGroup();
             $data->name = $student_group_name;
             $data->subject_id = $request->subject;
             $data->teacher_id = $request->teacher;
             $data->class_id = $request->class;
+            $data->year_id = $activeYear->id;
+            $data->active = false;
             $data->group_type = $request->group_type;
             $data->alone_date = $request->alone_date_input;
             $data->nb_lessons = 0;
@@ -289,10 +291,7 @@ class SetupService
             $data->fix_salary = $request->fix_salary;
             $data->amount_per_student = $request->amount_per_student;
 
-            if ($request->group_type == 'فردي') {
-                info('here alone');
-                info('start time : ' . $request->start_time[0]);
-                info('end time : ' . $request->end_time[0]);
+            if ($request->group_type == 'فردي' && $request->room != null && $request->start_time != null && $request->end_time != null) {
                 $data->start_time = $request->start_time[0];
                 $data->end_time = $request->end_time[0];
                 $data->classes_id = $request->room[0];
@@ -300,11 +299,10 @@ class SetupService
 
             $data->save();
 
-            if ($request->group_type == 'جماعي') {
-                info('here group');
+            if ($request->group_type == 'جماعي' && $request->group_date_input != null) {
                 for ($i = 0; $i < count($request->group_date_input); $i++) {
                     DB::table('learning_seances')->insertGetId(
-                        ['day' => $request->group_date_input[$i], 'start_time' => $request->start_time[$i], 'end_time' => $request->end_time[$i], 'student_group_id' => $data->id, 'room_id' => $request->room[$i]]
+                        ['day' => $request->group_date_input[$i], 'start_time' => $request->start_time[$i], 'end_time' => $request->end_time[$i], 'student_group_id' => $data->id, 'room_id' => $request->room[$i], 'year_id' => $activeYear->id]
                     );
                 }
             }
@@ -345,6 +343,7 @@ class SetupService
                 $assignStudent = new AssignStudent();
                 $assignStudent->student_id = $student_id;
                 $assignStudent->group_id = $value;
+                $assignStudent->year_id = $this->findActiveYear()->id;
                 $assignStudent->save();
 
                 $last_group_attendance = GroupAttendance::where('group_id', $request->group_id)->get();
@@ -369,6 +368,7 @@ class SetupService
                     $account_student_fees->amount_to_be_paid = $fee_amount;
                     $account_student_fees->num_lesson_start = $num_lesson + 1;
                     $account_student_fees->num_lesson_end = $num_lesson + 4;
+                    $account_student_fees->year_id = $this->findActiveYear()->id;
                     $account_student_fees->save();
 
                     for ($i = 1; $i <= $nb_lesson_cycle; $i++) {
@@ -376,6 +376,7 @@ class SetupService
                         $ligne_account_student_fee->account_student_id = $account_student_fees->id;
                         $ligne_account_student_fee->amount = $fee_amount / $nb_lesson_cycle;
                         $ligne_account_student_fee->num_lesson = $num_lesson + $i;
+                        $ligne_account_student_fee->year_id = $this->findActiveYear()->id;
                         $ligne_account_student_fee->save();
                     }
                 } elseif ($group->fee_type_id == 1) {
@@ -385,6 +386,7 @@ class SetupService
                         $account_student_fees->group_id = $value;
                         $account_student_fees->fee_category_id = 2;
                         $account_student_fees->amount_to_be_paid = $fee_amount;
+                        $account_student_fees->year_id = $this->findActiveYear()->id;
                         $account_student_fees->save();
                     } else {
                         $total_days_in_current_month = date('t', strtotime($last_group_attendance->date));
@@ -394,6 +396,7 @@ class SetupService
                         $account_student_fees->group_id = $value;
                         $account_student_fees->fee_category_id = 2;
                         $account_student_fees->amount_to_be_paid = $remaining_days * ($fee_amount / $total_days_in_current_month);
+                        $account_student_fees->year_id = $this->findActiveYear()->id;
                         $account_student_fees->save();
                     }
                 }
@@ -459,8 +462,10 @@ class SetupService
 
     public function deleteStudentGroupById($id): void
     {
-        $group = $this->findStudentGroupById($id);
-        $group->delete();
+        $this->findStudentGroupById($id)->delete();
+        DB::table('learning_seances')
+            ->where('student_group_id', $id)
+            ->delete();
     }
 
     public function getStudentGroupByActive(bool $active)

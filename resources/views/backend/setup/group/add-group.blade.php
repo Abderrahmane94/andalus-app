@@ -359,7 +359,7 @@
                     for (var j = 0; j < learningSeances[j].room_id; j++) {
                         if (room[i].value == learningSeances[j].room_id
                             && ((startTime[i] >= learningSeances[j].start_time && learningSeances[j].end_time >= startTime[i])
-                                 || (endTime[i] >= learningSeances[j].start_time && learningSeances[j].end_time >= endTime[i]) )
+                                || (endTime[i] >= learningSeances[j].start_time && learningSeances[j].end_time >= endTime[i]))
                             && endTime[i] <= learningSeances[j].start_time) {
                             Swal.fire({
                                 title: 'القاعة غير متوفرة أو الأستاذ منشغل، يرجى مراجعة البرنامج الأسبوعي!',
@@ -395,6 +395,8 @@
                     $("#alone_date_input").show();
                     $("#group_date_input").hide();
                     $("#add_more_item").hide();
+                    $("#delete_whole_extra_item_add").hide();
+                    $("#whole_extra_item_add").hide();
                 } else {
                     $("#alone_date_input").hide();
                     $("#group_date_input").show();

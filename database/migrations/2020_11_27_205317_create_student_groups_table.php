@@ -17,18 +17,21 @@ class CreateStudentGroupsTable extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->integer('subject_id');
-            $table->integer('teacher_id');
-            $table->integer('classes_id');///room
+            $table->integer('teacher_id')->nullable();
+            $table->integer('classes_id')->nullable();///room
             $table->integer('class_id');
             $table->integer('year_id');
-            $table->time('start_time');
-            $table->time('end_time');
-            $table->string('day');
+            $table->date('alone_date')->nullable();
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();
+            $table->string('day')->nullable();
             $table->string('group_type');//common or individual
-            $table->integer('nb_lessons');
+            $table->integer('nb_lessons')->nullable();
+            $table->integer('nb_lesson_cycle');
+            $table->integer('fix_salary')->nullable();
+            $table->integer('amount_per_student')->nullable();
             $table->integer('fee_type_id');
             $table->boolean('active');
-            $table->integer('year_id');
             $table->timestamps();
         });
     }

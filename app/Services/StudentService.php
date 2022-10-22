@@ -19,6 +19,14 @@ use Illuminate\Support\Facades\Storage;
 
 class StudentService
 {
+
+    protected $setupService;
+
+    public function __construct(SetupService $setupService)
+    {
+        $this->setupService = $setupService;
+    }
+
     /*-------------- Student registration ------------------*/
 
     public function addStudent(Request $request)
@@ -26,14 +34,15 @@ class StudentService
         Log::info('Enter To Add Student Service !');
 
         DB::transaction(function () use ($request) {
+            $activeYear = $this->setupService->findActiveYear();
             // create student account
-            $student = $this->createStudent($request);
+            $student = $this->createStudent($request, $activeYear->id);
 
             /// registration fee
             $amount_to_be_paid = FeeCategoryAmount::where('fee_category_id', 1)
                 ->where('class_id', $request->class_id)->first();
 
-            $this->addAccountStudentFee($student->id, null, 1, $amount_to_be_paid->amount, null, null, 0, 0, false, false);
+            $this->addAccountStudentFee($student->id, null, 1, $amount_to_be_paid->amount, null, null, 0, 0, false, false, $activeYear->id);
         });
     }
 
@@ -71,13 +80,14 @@ class StudentService
             }
 
         }
-        return $checkYear . "-" . $id_no;
+        return $checkYear . "/" . $id_no;
     }
 
-    public function createStudent(Request $request): User
+    public function createStudent(Request $request, $activeYear_id): User
     {
+
         // generate student code
-        $final_id_no = $this->generateStudentCode($request->year_id);
+        $final_id_no = $this->generateStudentCode($activeYear_id);
         // create account
         $student = new User();
         $student->id_no = $final_id_no;
@@ -98,7 +108,6 @@ class StudentService
             $file->move(public_path('upload/student_images'), $filename);
             $student['image'] = $filename;
             $student['profile_photo_path'] = 'upload/student_images/' . $filename;
-
         }
         if ($request->filled('image_captured')) {
             $folderPath = "upload/student_images/";
@@ -114,7 +123,7 @@ class StudentService
         $student->save();
 
         // assign student to a class
-        $this->assignStudentToAClass($student, $request->year_id, $request->class_id);
+        $this->assignStudentToAClass($student, $activeYear_id, $request->class_id);
 
         return $student;
     }
@@ -233,7 +242,7 @@ class StudentService
 
     /*------------- Student Fee -------------------*/
 
-    public function addAccountStudentFee($student_id, $group_id, $fee_category_id, $amount_to_be_paid, $num_lesson_start, $num_lesson_end, $month, $days_month, $fee_status, $active): void
+    public function addAccountStudentFee($student_id, $group_id, $fee_category_id, $amount_to_be_paid, $num_lesson_start, $num_lesson_end, $month, $days_month, $fee_status, $active, $year_id): void
     {
         $accountStudentFee = new AccountStudentFee();
         $accountStudentFee->student_id = $student_id;
@@ -246,6 +255,7 @@ class StudentService
         $accountStudentFee->days_month = $days_month;
         $accountStudentFee->fee_status = $fee_status;
         $accountStudentFee->active = $active;
+        $accountStudentFee->year_id = $active;
         $accountStudentFee->save();
 
         /*        $ligne_account_reg_student = new LigneAccountStudentFee();

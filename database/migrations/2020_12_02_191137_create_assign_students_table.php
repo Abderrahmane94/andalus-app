@@ -16,9 +16,9 @@ class CreateAssignStudentsTable extends Migration
         Schema::create('assign_students', function (Blueprint $table) {
             $table->id();
             $table->integer('student_id');
-            $table->integer('class_id');
+            $table->integer('class_id')->nullable();
+            $table->integer('group_id')->nullable();
             $table->integer('year_id');
-            $table->integer('group_id');
             $table->timestamps();
         });
     }

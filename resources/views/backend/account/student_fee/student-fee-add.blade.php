@@ -5,8 +5,6 @@
 
     <div class="content-wrapper">
         <div class="container-full">
-            <!-- Content Header (Page header) -->
-            <!-- Main content -->
             <section class="content">
                 <div class="row">
                     <div class="col-12">
@@ -22,25 +20,22 @@
                                                            class="form-control">
                                                 </div>
                                             </div>
-                                        </div> <!-- End Col md 4 -->
+                                        </div>
                                         <div class="col-md-4" style="padding-top: 25px;">
-
                                             <input type="submit" class="btn btn-rounded btn-dark mb-5" name="search"
                                                    value="بحث">
-                                        </div> <!-- End Col md 4 -->
-                                    </div><!--  end row -->
+                                        </div>
+                                    </div>
                                 </form>
                             </div>
                         </div>
                     </div>
-                    <!-- // end first col 12 -->
                     <div class="col-12">
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"> قائمة رسومات الطالب
                                     <strong> {{ $last_name }} {{ $first_name }} </strong></h3>
                             </div>
-                            <!-- /.box-header -->
                             <div class="box-body">
                                 <div class="table-responsive">
                                     <table id="example1" class="table table-bordered table-striped">
@@ -56,7 +51,6 @@
                                             <th>المبلغ المدفوع</th>
                                             <th>المبلغ المتبقي</th>
                                             <th>تاريخ الدفع</th>
-
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -65,20 +59,24 @@
                                                 <td>{{ $key+1 }}</td>
                                                 <td> {{ $value['student']['last_name'] }} {{ $value['student']['first_name'] }}</td>
                                                 <td> {{ $value['student']['id_no'] }}</td>
-                                                <td> @if ($value['group_id'] != null) {{$value['group']['name'] }} @endif</td>
+                                                <td> @if ($value['group_id'] != null)
+                                                        {{$value['group']['name'] }}
+                                                    @endif</td>
                                                 <td> {{ $value['fee_category']['name']}}</td>
-                                                @if($value['fee_category_id'] == 2 ) <td> من الحصة {{$value['num_lesson_start']}}  إلى الحصة {{$value['num_lesson_end']}} </td> @else <td>-</td> @endif
+                                                @if($value['fee_category_id'] == 2 )
+                                                    <td> من الحصة {{$value['num_lesson_start']}} إلى
+                                                        الحصة {{$value['num_lesson_end']}} </td>
+                                                @else
+                                                    <td>-</td>
+                                                @endif
                                                 <td> {{ $value['amount_to_be_paid']}}</td>
                                                 <td> {{ $value['amount_paid']}}</td>
                                                 <td> {{ $value['amount_to_be_paid']-$value['amount_paid']}}</td>
                                                 <td> {{ $value['paiement_date']}}</td>
-
                                             </tr>
                                         @endforeach
-
                                         </tbody>
                                     </table>
-
                                     <!-- Button trigger modal -->
                                     <button type="button" class="btn btn-outline-primary mb-2" data-toggle="modal"
                                             data-target=".bd-example-modal-lg" style="float: left">
@@ -112,7 +110,6 @@
                                                                     <th>المبلغ الواجب دفعه</th>
                                                                     <th>المبلغ المدفوع</th>
                                                                     <th>المبلغ المتبقي</th>
-
                                                                 </tr>
                                                                 </thead>
                                                                 <tbody>
@@ -124,43 +121,44 @@
                                                                                    class="checkIt custom-switch-input"/>
                                                                         </td>
                                                                         <td> {{ $key+1 }} </td>
-                                                                        <td><input type="text" name="group[]" disabled size="10"
+                                                                        <td><input type="text" name="group[]" disabled
+                                                                                   size="20"
                                                                                    value="@if ($value['group_id'] != null) {{$value['group']['name'] }} @else - @endif">
                                                                         </td>
-                                                                        <td><input type="text" name="feeCategory[]" size="20"
+                                                                        <td><input type="text" name="feeCategory[]"
+                                                                                   size="12"
                                                                                    readonly
                                                                                    value="{{ $value['fee_category']['name']}}">
                                                                         </td>
                                                                         <td><input
-                                                                                name="amountToBePaid[{{$value['id']}}]"readonly size="10"
+                                                                                name="amountToBePaid[{{$value['id']}}]"
+                                                                                readonly size="10"
                                                                                 id="amountToBePaid[{{$value['id']}}]"
                                                                                 onchange="onChangeInput()"
                                                                                 value="{{ $value['amount_to_be_paid']}}">
                                                                         </td>
-                                                                        <td><input name="amountPaid[{{$value['id']}}]"readonly size="10"
+                                                                        <td><input name="amountPaid[{{$value['id']}}]"
+                                                                                   readonly size="10"
                                                                                    id="amountPaid[{{$value['id']}}]"
                                                                                    onchange="onChangeInput()"
                                                                                    value="{{ $value['amount_paid']}}">
                                                                         </td>
                                                                         <td><input
-                                                                                name="remainingAmount[{{$value['id']}}]"readonly size="10"
+                                                                                name="remainingAmount[{{$value['id']}}]"
+                                                                                readonly size="10"
                                                                                 id="remainingAmount[{{$value['id']}}]"
                                                                                 onchange="onChangeInput()"
                                                                                 value="{{ $value['amount_to_be_paid']-$value['amount_paid']}}">
                                                                         </td>
-
                                                                     </tr>
                                                                 @endforeach
-
                                                                 </tbody>
                                                             </table>
                                                         @else
                                                             <h1 style="color: green">كل اشتراكات الطالب مدفوعة</h1>
                                                         @endif
-
                                                     </div>
                                                     <div class="modal-footer">
-
                                                         <div class="container-fluid">
                                                             @if($remaining_fee->isNotEmpty())
                                                                 <div class="col-12 col-sm-6">
@@ -168,71 +166,43 @@
                                                                         style="padding-left: 10px;padding-right: 10px">
                                                                         المبلغ الواجب دفعه:</h1>
                                                                     <h1 id="sum" style="color: green">0.00</h1>
-                                                                    <input type="hidden" name="globalAmountToBePaid" id="globalAmountToBePaid">
+                                                                    <input type="hidden" name="globalAmountToBePaid"
+                                                                           id="globalAmountToBePaid">
                                                                     <h1 class="mb-0 "
                                                                         style="padding-left: 10px;padding-right: 10px">
                                                                         المبلغ المدفوع:</h1>
-                                                                    <input name="globalAmountPaid" required type="number">
-
+                                                                    <input name="globalAmountPaid" required
+                                                                           type="number">
                                                                 </div>
                                                             @endif
-                                                                <div class="col-sm-6 d-none d-sm-block float-right">
-                                                                    <button type="button"  class="btn btn-secondary float-right"
-                                                                            data-dismiss="modal" >إغلاق
-                                                                    </button>
-                                                                    @if($remaining_fee->isNotEmpty())
-                                                                    <button type="submit"  class="btn btn-success float-right"
+                                                            <div class="col-sm-6 d-none d-sm-block float-right">
+                                                                <button type="button"
+                                                                        class="btn btn-secondary float-right"
+                                                                        data-dismiss="modal">إغلاق
+                                                                </button>
+                                                                @if($remaining_fee->isNotEmpty())
+                                                                    <button type="submit"
+                                                                            class="btn btn-success float-right"
                                                                             id="payFees" style="margin-left: 5px;">تسديد
                                                                     </button>
-                                                                    @endif
-
-                                                                </div>
+                                                                @endif
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
-                                    <!-- .Modal -->
-
-
                                 </div>
                             </div>
-                            <!-- /.box-body -->
                         </div>
-                        <!-- /.box -->
-
-
                     </div>
-                    <!-- /.col -->
             </section>
-            <!-- /.content -->
         </div>
     </div>
 
 
     <script type="text/javascript">
-
-        function sumCalculate() {
-            var remainingValues = [];
-
-            $("input[type=checkbox]:checked").each(function () {
-                var amountToBePaidInput = "amountToBePaid";
-                var amountPaidInput = "amountPaid";
-                amountToBePaidInput = amountToBePaidInput.concat('[', $(this).val(), ']');
-                amountPaidInput = amountPaidInput.concat('[', $(this).val(), ']');
-                remainingValues.push(parseInt(document.getElementById(amountToBePaidInput).value, 10)-parseInt(document.getElementById(amountPaidInput).value, 10));
-            });
-
-            var total = 0;
-
-            const iterator = remainingValues.values();
-            for (const value of iterator) {
-                total += value;
-            }
-            return total;
-        }
-
 
         $('.checkIt').bind('click', function () {
             if ($(this).is(":checked")) {
@@ -240,15 +210,11 @@
                 document.getElementById("globalAmountToBePaid").value = sumCalculate();
             } else {
                 document.getElementById("sum").innerHTML = sumCalculate();
-                document.getElementById("globalAmountToBePaid").value  = sumCalculate();
+                document.getElementById("globalAmountToBePaid").value = sumCalculate();
             }
         });
 
-        function onChangeInput() {
-            document.getElementById("sum").innerHTML = sumCalculate();
-            document.getElementById("globalAmountToBePaid").value = sumCalculate();
-        }
-
+        //-------- Check for empty selection -----------------
         $(document).ready(function () {
             $('#payFees').click(function () {
                 checked = $("input[type=checkbox]:checked").length;
@@ -268,7 +234,31 @@
             });
         });
 
-    </script>
+        //--------- Functions ---------------
+        function onChangeInput() {
+            document.getElementById("sum").innerHTML = sumCalculate();
+            document.getElementById("globalAmountToBePaid").value = sumCalculate();
+        }
 
+        function sumCalculate() {
+            var remainingValues = [];
+            $("input[type=checkbox]:checked").each(function () {
+                var amountToBePaidInput = "amountToBePaid";
+                var amountPaidInput = "amountPaid";
+                amountToBePaidInput = amountToBePaidInput.concat('[', $(this).val(), ']');
+                amountPaidInput = amountPaidInput.concat('[', $(this).val(), ']');
+                remainingValues.push(parseInt(document.getElementById(amountToBePaidInput).value, 10) - parseInt(document.getElementById(amountPaidInput).value, 10));
+            });
+
+            var total = 0;
+
+            const iterator = remainingValues.values();
+            for (const value of iterator) {
+                total += value;
+            }
+            return total;
+        }
+
+    </script>
 
 @endsection

@@ -24,7 +24,6 @@
                                             <div class="add_item">
                                                 <div class="row">
                                                     <div class="col-md-4">
-
                                                         <div class="form-group">
                                                             <h5>الاسم <span class="text-danger">*</span></h5>
                                                             <div class="controls">
@@ -127,33 +126,8 @@
 
                                                 </div> <!-- End 3rd Row -->
 
-
                                                 <div class="row"> <!-- 4TH Row -->
-
-
                                                     <div class="col-md-4">
-
-                                                        <div class="form-group">
-                                                            <h5>السنة الدراسية <span class="text-danger">*</span></h5>
-                                                            <div class="controls">
-                                                                <select name="year_id" required="" class="form-control">
-                                                                    <option value="" selected="" disabled="">اختر
-                                                                        السنة...
-                                                                    </option>
-                                                                    @foreach($years as $year)
-                                                                        <option
-                                                                            value="{{ $year->id }}">{{ $year->name }}</option>
-                                                                    @endforeach
-
-                                                                </select>
-                                                            </div>
-                                                        </div>
-
-                                                    </div> <!-- End Col md 4 -->
-
-
-                                                    <div class="col-md-4">
-
                                                         <div class="form-group">
                                                             <h5>فئة الطلبة <span class="text-danger">*</span></h5>
                                                             <div class="controls">
